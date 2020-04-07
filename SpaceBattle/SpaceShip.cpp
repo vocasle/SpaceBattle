@@ -12,3 +12,11 @@ const std::vector<Point>& SpaceShip::get_position() const
 {
 	return m_position;
 }
+
+void SpaceShip::uncover_position()
+{
+	for (auto& p : m_position)
+	{
+		p.is_hitted = true;
+	}
+}

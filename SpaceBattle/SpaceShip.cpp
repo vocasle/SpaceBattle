@@ -1,6 +1,6 @@
 #include "SpaceShip.h"
 
-SpaceShip::SpaceShip() : m_is_discovered{ false }, m_position{} { }
+SpaceShip::SpaceShip() : m_position{} { }
 
 void SpaceShip::place_in_position(const std::vector<Point>& position)
 {
@@ -18,4 +18,14 @@ void SpaceShip::uncover_position()
 	{
 		p.is_hitted = true;
 	}
+}
+
+bool SpaceShip::is_discovered() const
+{
+	bool is_discovered = true;
+	for (const auto& p : m_position)
+	{
+		is_discovered = is_discovered && p.is_hitted;
+	}
+	return is_discovered;
 }

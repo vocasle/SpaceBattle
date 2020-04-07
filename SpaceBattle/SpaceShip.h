@@ -11,9 +11,9 @@ public:
 	void place_in_position(const std::vector<Point>& position);
 	const std::vector<Point>& get_position() const;
 	void uncover_position();
+	bool is_discovered() const;
 private:
 	std::vector<Point> m_position;
-	bool m_is_discovered;
 };
 
 #endif // !SPACE_SHIP_H

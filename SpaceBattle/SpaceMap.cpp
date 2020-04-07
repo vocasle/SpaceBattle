@@ -36,6 +36,6 @@ void plot_point(const Point& point,
 	std::vector<std::vector<char>>& front_proj,
 	std::vector<std::vector<char>>& top_proj)
 {
-	front_proj[point.z - 1][point.y - 1] = 'X';
-	top_proj[point.x - 1][point.y - 1] = 'X';
+	front_proj[point.z - 1][point.y - 1] = '@';
+	top_proj[point.x - 1][point.y - 1] = '@';
 }

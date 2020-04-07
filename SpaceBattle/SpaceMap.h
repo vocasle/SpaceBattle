@@ -2,7 +2,6 @@
 #define SPACE_MAP_H
 
 #include <vector>
-#include "SpaceShip.h"
 #include "Point.h"
 
 enum class Projection

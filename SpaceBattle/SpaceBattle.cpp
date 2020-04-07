@@ -379,74 +379,37 @@ void mark_quadrant(std::vector<std::vector<char>>& proj,
 	}
 }
 
+
+
 void SpaceBattle::print_hint()
 {
-	std::vector<Quadrant> quadrants;
+	std::vector<Point> points;
 	for (const auto& ship : m_ships)
 	{
 		auto pos = ship.get_position();
-		std::vector<Quadrant> found_in_quads;
-		for (const auto& point : pos)
+		if (pos.size() > 1)
 		{
-			found_in_quads.push_back(found_in_quad(point));
-		}
-		if (in_quadrant(found_in_quads))
-		{
-			quadrants.push_back(found_in_quads.at(0));
+			auto it = pos.begin();
+			it->is_hitted = true;
+			points.push_back(*it);
 		}
 	}
-	auto top_proj = m_map.get_top_projection();
-	for (auto& quadrant : quadrants)
-	{
-		switch (quadrant)
-		{
-		case Quadrant::first:
-			mark_quadrant(top_proj, 0, 4, 5, 9);
-			break;
-		case Quadrant::second:
-			mark_quadrant(top_proj, 0, 4, 0, 4);
-			break;
-		case Quadrant::third:
-			mark_quadrant(top_proj, 5, 9, 0, 4);
-			break;
-		case Quadrant::fourth:
-			mark_quadrant(top_proj, 5, 9, 5, 9);
-			break;
-		}
-	}
-	m_map.update_top_projection(top_proj);
+	m_map.update_projections(points);
 	print_round_result();
-	for (auto& row : top_proj)
+	hide_ships();
+}
+
+void SpaceBattle::hide_ships()
+{
+	std::vector<Point> points;
+	for (const auto& ship : m_ships)
 	{
-		for (auto& el : row)
+		auto pos = ship.get_position();
+		for (auto it = pos.begin(); it != pos.end(); ++it)
 		{
-			el = '*';
+			it->is_hitted = false;
+			points.push_back(*it);
 		}
 	}
-	m_map.update_top_projection(top_proj);
-}
-
-Quadrant found_in_quad(const Point& point)
-{
-	if (point.x <= 5 && point.y > 5)
-	{
-		return Quadrant::first;
-	}
-	else if (point.x <= 5 && point.y <= 5)
-	{
-		return Quadrant::second;
-	}
-	else if (point.x > 5 && point.y <= 5)
-	{
-		return Quadrant::third;
-	}
-	else
-	{
-		return Quadrant::fourth;
-	}
-}
-
-bool in_quadrant(const std::vector<Quadrant>& quads)
-{
-	return std::adjacent_find(quads.begin(), quads.end(), std::not_equal_to<>()) == quads.end();
+	m_map.update_projections(points);
 }

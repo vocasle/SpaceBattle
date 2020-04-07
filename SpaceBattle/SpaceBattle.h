@@ -17,11 +17,6 @@ enum class Level
 	one, two, three
 };
 
-enum class Quadrant
-{
-	first, second, third, fourth
-};
-
 class SpaceBattle
 {
 public:
@@ -34,6 +29,7 @@ private:
 	void init_lvl();
 	void init_lvl_one();
 	void print_hint();
+	void hide_ships();
 	Level m_lvl;
 	uint32_t m_charges;
 	uint32_t m_ship_size;
@@ -49,5 +45,3 @@ Axis generate_axis();
 uint32_t random_int(uint32_t from, uint32_t to);
 std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis);
 void print_intro(Level lvl);
-Quadrant found_in_quad(const Point& point);
-bool in_quadrant(const std::vector<Quadrant>& quads);

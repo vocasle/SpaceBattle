@@ -4,7 +4,7 @@ int main()
 {
 	try
 	{
-		SpaceBattle sb{ 10,5 };
+		SpaceBattle sb{};
 		sb.run_game_loop();
 	}
 	catch (const std::exception& e)

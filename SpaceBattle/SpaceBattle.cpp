@@ -7,14 +7,44 @@
 #include <iostream>
 #include <algorithm>
 
-SpaceBattle::SpaceBattle(uint32_t missiles, uint32_t ship_size):
-	m_missiles{missiles},
-	m_ship_size{ship_size},
+SpaceBattle::SpaceBattle():
+	m_lvl{Level::one},
+	m_missiles{0},
+	m_ship_size{0},
 	m_map{SpaceMap{10}},
-	m_ships{generate_ships(ship_size, missiles / 2)}
+	m_ships{0}
 { 
-	//print_welcome_msg();
-	print_game_result();
+	print_welcome_msg();
+	init_lvl();
+}
+
+void SpaceBattle::init_lvl()
+{
+	switch (m_lvl)
+	{
+	case Level::one:
+		init_lvl_one();
+		break;
+	case Level::two:
+		break;
+	case Level::three:
+		break;
+	}
+}
+
+void SpaceBattle::init_lvl_one()
+{
+	print_intro(m_lvl);
+	m_missiles = 20;
+	// generate 2 3-decked ships 
+	auto battleships = generate_ships(3, 2);
+	// and one 5-decked ship
+	auto command_ship = generate_ships(5, 1);
+	std::vector<SpaceShip> ships;
+	ships.reserve(battleships.size() + command_ship.size());
+	ships.insert(ships.end(), battleships.begin(), battleships.end());
+	ships.insert(ships.end(), command_ship.begin(), command_ship.end());
+	m_ships = ships;
 }
 
 void print_z_axis(const uint32_t num)
@@ -162,6 +192,47 @@ Axis generate_axis()
 	return Axis(random_int(0, 2));
 }
 
+// returns all point coordinates that match axis
+// for example if axis is Axis::x, then
+// all point.x of points will be returned
+std::vector<uint32_t> points_on_axis(Axis a, const std::vector<Point>& points)
+{
+	std::vector<uint32_t> points_on_axis;
+	for (const auto& point : points)
+	{
+		switch (a)
+		{
+		case Axis::x:
+			points_on_axis.push_back(point.x);
+			break;
+		case Axis::y:
+			points_on_axis.push_back(point.y);
+			break;
+		case Axis::z:
+			points_on_axis.push_back(point.z);
+			break;
+		}
+	}
+	return points_on_axis;
+}
+
+uint32_t next_val(const std::vector<uint32_t>& forbidden_vals, uint32_t prev_val, uint32_t min_val = 1, uint32_t max_val = 10)
+{
+	auto [min_el, max_el] = std::minmax_element(forbidden_vals.begin(), forbidden_vals.end());
+	if (*max_el + 1 <= max_val)
+		return *max_el + 1;
+	else if (*min_el - 1 >= min_val)
+		return *min_el - 1;
+	else
+	{
+		error("Error in next_val() - Next value will be out of range ["
+			+ std::to_string(min_val)
+			+ ", "
+			+ std::to_string(max_val)
+			+ "].");
+	}
+}
+
 std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
 {
 	auto axis2 = generate_axis();
@@ -169,12 +240,14 @@ std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
 	{
 		axis2 = generate_axis();
 	}
-	auto base_point = generate_point();
+
 	std::vector<Point> position;
-	position.push_back(base_point);
+	position.push_back(generate_point());
 	int32_t cnt = 1;
+	const uint32_t map_size = 10;
 	while (position.size() != ship_size)
 	{
+		Point base_point = position.at(position.size() - 1);
 		Point p{ 0,0,0 };
 		switch (axis)
 		{
@@ -203,15 +276,15 @@ std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
 
 		if (p.x == 0)
 		{
-			p.x = base_point.x + cnt > 10 ? base_point.x - cnt : base_point.x + cnt;
+			p.x = next_val(points_on_axis(Axis::x, position), base_point.x, 1, 10);
 		}
 		else if (p.y == 0)
 		{
-			p.y = base_point.y + cnt > 10 ? base_point.y - cnt : base_point.y + cnt;
+			p.y = next_val(points_on_axis(Axis::y, position), base_point.y, 1, 10);
 		}
 		else
 		{
-			p.z = base_point.z + cnt > 10 ? base_point.z - cnt : base_point.z + cnt;
+			p.z = next_val(points_on_axis(Axis::z, position), base_point.z, 1, 10);
 		}
 		position.push_back(p);
 		++cnt;
@@ -237,14 +310,17 @@ std::vector<SpaceShip> generate_ships(uint32_t ship_size, uint32_t num_of_ships)
 {
 	std::vector<SpaceShip> ships(num_of_ships);
 	auto points = generate_points(num_of_ships * ship_size, ship_size);
-	for (size_t i = 0; i < num_of_ships; ++i)
+	uint32_t ships_processed = 0;
+	std::vector<Point> position;
+	for (size_t i = 0; i < points.size(); ++i)
 	{
-		std::vector<Point> position;
-		for (size_t j = 0; j < ship_size; ++j)
+		position.push_back(points[i]);
+		if (position.size() == ship_size)
 		{
-			position.push_back(points.at(i + j));
+			ships.at(ships_processed).place_in_position(position);
+			position = {};
+			++ships_processed;
 		}
-		ships.at(i).place_in_position(position);
 	}
 	return ships;
 }
@@ -271,4 +347,12 @@ Point prompt_for_coordinates()
 	Point p{};
 	std::cin >> p;
 	return p;
+}
+
+void print_intro(Level lvl)
+{
+	// load text file and print according text
+	std::cout << "Lvl 1 begins.\n"
+		<< "You have 20 missiles. There are 2 3-decked lincors,\n"
+		<< "and one 5-decked command ship. Good luck!\n";
 }

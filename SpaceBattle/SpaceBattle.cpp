@@ -76,7 +76,7 @@ void print_y_axis(const std::string& spacer, uint32_t limit)
 void print_x_axis(const std::string& spacer, uint32_t num)
 {
 	// print x axis
-	if (num == 10)
+	if (num == 10 || num == 5)
 	{
 		std::cout << ' ' << ' ';
 	}
@@ -115,14 +115,27 @@ void SpaceBattle::print_round_result() const
 		{
 			std::cout << el << ' ';
 		}
+		// print Z axis label
+		if (i == 4)
+		{
+			std::cout << "Z";
+		}
 		print_x_axis(spacer, i + 1);
 		// print rows of top projection
 		for (const auto& el : top_row)
 		{
 			std::cout << el << ' ';
 		}
+		// print X axis label
+		if (i == 4)
+		{
+			std::cout << "X";
+		}
+
 		std::cout << '\n';
 	}
+
+	std::cout << "           Y                        Y\n";
 }
 
 void SpaceBattle::run_game_loop()

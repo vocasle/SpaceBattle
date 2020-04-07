@@ -45,6 +45,7 @@ void SpaceBattle::init_lvl_one()
 	ships.insert(ships.end(), battleships.begin(), battleships.end());
 	ships.insert(ships.end(), command_ship.begin(), command_ship.end());
 	m_ships = ships;
+	print_hint();
 }
 
 void print_z_axis(const uint32_t num)
@@ -355,4 +356,97 @@ void print_intro(Level lvl)
 	std::cout << "Lvl 1 begins.\n"
 		<< "You have 20 missiles. There are 2 3-decked lincors,\n"
 		<< "and one 5-decked command ship. Good luck!\n";
+}
+
+void mark_quadrant(std::vector<std::vector<char>>& proj, 
+	uint32_t min_col,
+	uint32_t max_col, 
+	uint32_t min_row,
+	uint32_t max_row
+	)
+{
+	for (size_t i = 0; i < proj.size(); ++i)
+	{
+		auto& row = proj.at(i);
+		for (size_t j = 0; j < row.size(); ++j)
+		{
+			auto& el = row.at(j);
+			if (i <= max_col && i >= min_col && j >= min_row && j <= max_row)
+			{
+				el = '?';
+			}
+		}
+	}
+}
+
+void SpaceBattle::print_hint()
+{
+	std::vector<Quadrant> quadrants;
+	for (const auto& ship : m_ships)
+	{
+		auto pos = ship.get_position();
+		std::vector<Quadrant> found_in_quads;
+		for (const auto& point : pos)
+		{
+			found_in_quads.push_back(found_in_quad(point));
+		}
+		if (in_quadrant(found_in_quads))
+		{
+			quadrants.push_back(found_in_quads.at(0));
+		}
+	}
+	auto top_proj = m_map.get_top_projection();
+	for (auto& quadrant : quadrants)
+	{
+		switch (quadrant)
+		{
+		case Quadrant::first:
+			mark_quadrant(top_proj, 0, 4, 5, 9);
+			break;
+		case Quadrant::second:
+			mark_quadrant(top_proj, 0, 4, 0, 4);
+			break;
+		case Quadrant::third:
+			mark_quadrant(top_proj, 5, 9, 0, 4);
+			break;
+		case Quadrant::fourth:
+			mark_quadrant(top_proj, 5, 9, 5, 9);
+			break;
+		}
+	}
+	m_map.update_top_projection(top_proj);
+	print_round_result();
+	for (auto& row : top_proj)
+	{
+		for (auto& el : row)
+		{
+			el = '*';
+		}
+	}
+	m_map.update_top_projection(top_proj);
+}
+
+Quadrant found_in_quad(const Point& point)
+{
+	if (point.x <= 5 && point.y > 5)
+	{
+		return Quadrant::first;
+	}
+	else if (point.x <= 5 && point.y <= 5)
+	{
+		return Quadrant::second;
+	}
+	else if (point.x > 5 && point.y <= 5)
+	{
+		return Quadrant::third;
+	}
+	else
+	{
+		return Quadrant::fourth;
+	}
+}
+
+bool in_quadrant(const std::vector<Quadrant>& quads)
+{
+	return std::adjacent_find(quads.begin(), quads.end(), std::not_equal_to<>()) == quads.end();
 }

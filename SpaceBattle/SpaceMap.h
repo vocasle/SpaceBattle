@@ -16,6 +16,7 @@ public:
 	const std::vector<std::vector<char>>& get_front_projection() const;
 	const std::vector<std::vector<char>>& get_top_projection() const;
 	void update_projections(const std::vector<Point>& points);
+	void update_top_projection(const std::vector<std::vector<char>>& proj);
 private:
 	uint32_t m_grid_size;
 	std::vector<std::vector<char>> m_front_proj;

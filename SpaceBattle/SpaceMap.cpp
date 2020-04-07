@@ -27,6 +27,11 @@ void SpaceMap::update_projections(const std::vector<Point>& points)
 	}
 }
 
+void SpaceMap::update_top_projection(const std::vector<std::vector<char>>& proj)
+{
+	m_top_proj = proj;
+}
+
 void plot_point(const Point& point,
 	std::vector<std::vector<char>>& front_proj,
 	std::vector<std::vector<char>>& top_proj)

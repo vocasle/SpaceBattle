@@ -338,13 +338,13 @@ void print_welcome_msg()
 		<< "  #       #   #      #      #          #       #          #\n"
 		<< "  ########    ########      #          #       #          ########\n"
 		<< "  #       #   #      #      #          #       #          #\n"
-		<< "  ########    #      #      #          #       ########   ########\n";
+		<< "  ########    #      #      #          #       ########   ########\n\n\n";
 }
 
 
 Point prompt_for_coordinates()
 {
-	std::cout << "Enter coordinate of the targe: ";
+	std::cout << "Target point coordinates (X Y Z): ";
 	Point p{};
 	std::cin >> p;
 	return p;
@@ -352,31 +352,32 @@ Point prompt_for_coordinates()
 
 void print_intro(Level lvl)
 {
-	// load text file and print according text
-	std::cout << "Lvl 1 begins.\n"
-		<< "You have 20 missiles. There are 2 3-decked lincors,\n"
-		<< "and one 5-decked command ship. Good luck!\n";
-}
-
-void mark_quadrant(std::vector<std::vector<char>>& proj, 
-	uint32_t min_col,
-	uint32_t max_col, 
-	uint32_t min_row,
-	uint32_t max_row
-	)
-{
-	for (size_t i = 0; i < proj.size(); ++i)
-	{
-		auto& row = proj.at(i);
-		for (size_t j = 0; j < row.size(); ++j)
-		{
-			auto& el = row.at(j);
-			if (i <= max_col && i >= min_col && j >= min_row && j <= max_row)
-			{
-				el = '?';
-			}
-		}
-	}
+	// TODO move all text to file
+	std::cout << "\tYou are the Chief HPS Engineer on the research spaceship."
+		<< "\nYour ship is on course to HPS refueling point."
+		<< "\n\n\tSpacehip's main mission is detection of singularities"
+		<< "\nthat prevent good communication with Space Flight Control Center."
+		<< "\nThe tool that makes that detection possible is high precision scanner (HPS)."
+		<< "\n\n\tIn 0.5 parsecs from HPS refueling point you were called on the"
+		<< "\nbridge due to emergency. Spacehip's sensors detected some abnormal"
+		<< "\nradiation in sector F."
+		<< "\n\n\tThe Captain ordered to perform low energy scanning on the sector F."
+		<< "\nScanners detected 3 battleships nearby. Two 3-masted battleships and one"
+		<< "\n5-masted command ship. But due to the fact that scanning was performed in"
+		<< "\nlow energy mode you were not able to detect precise location of battleships."
+		<< "\n\n\tYou were ordered to detect precise location of the battleships to find"
+		<< "\na safe route through sector F using HPS."
+		<< "\n\n\tDue to the fact that you almost used all charges of the HPS in sector"
+		<< "\nE you have only 20 charges left."
+		<< "\n\n\tHPS emits a beam that allows to gen precise information"
+		<< "\nof the area nearby the target point."
+		<< "\nCoordinates of the target point must be entered precisely in following order: X Y Z."
+		<< "\nThe coordinates must be separated by space and after entering the coordinates"
+		<< "\nthey must be commited with commit button (Enter)."
+		<< "\n\n\tHere is the picture that low energy scanning was able to get. All scanners on"
+		<< "\nthe spaceship capture 3D image using right handed Cartesian coordinate system and"
+		<< "\nreport it using two projections of the 3D image: top and front projections."
+		<< "\n\n";
 }
 
 

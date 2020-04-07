@@ -2,6 +2,8 @@
 #define POINT_H
 
 #include <cstdint>
+#include <iostream>
+#include <string>
 
 struct Point
 {
@@ -15,4 +17,7 @@ struct Point
 
 bool operator==(const Point& lhs, const Point& rhs);
 bool operator!=(const Point& lhs, const Point& rhs);
+std::istream& operator>>(std::istream& is, Point& point);
+void error(const std::string& msg);
+
 #endif // !POINT_H

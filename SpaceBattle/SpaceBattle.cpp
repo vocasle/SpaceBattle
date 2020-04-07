@@ -9,7 +9,7 @@
 
 SpaceBattle::SpaceBattle():
 	m_lvl{Level::one},
-	m_missiles{0},
+	m_charges{0},
 	m_ship_size{0},
 	m_map{SpaceMap{10}},
 	m_ships{0}
@@ -35,7 +35,7 @@ void SpaceBattle::init_lvl()
 void SpaceBattle::init_lvl_one()
 {
 	print_intro(m_lvl);
-	m_missiles = 20;
+	m_charges = 20;
 	// generate 2 3-decked ships 
 	auto battleships = generate_ships(3, 2);
 	// and one 5-decked ship
@@ -126,22 +126,22 @@ void SpaceBattle::print_round_result() const
 
 void SpaceBattle::run_game_loop()
 {
-	while (m_missiles != 0)
+	while (m_charges != 0)
 	{
 		// promt user for input
 		Point p = prompt_for_coordinates();
 		// make a shot and check if any ships were hit
-		if (make_shoot(p))
+		if (scan_area(p))
 		{
 			print_round_result();
 		}
-		// decrement m_missiles
-		--m_missiles;
+		// decrement m_charges
+		--m_charges;
 	}
 	print_game_result();
 }
 
-bool SpaceBattle::make_shoot(const Point& p)
+bool SpaceBattle::scan_area(const Point& p)
 {
 	for (auto& ship : m_ships)
 	{

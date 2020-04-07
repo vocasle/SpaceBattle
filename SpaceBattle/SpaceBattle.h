@@ -24,12 +24,12 @@ public:
 	void print_round_result() const;
 	void print_game_result();
 	void run_game_loop();
-	bool make_shoot(const Point& p);
+	bool scan_area(const Point& p);
 private:
 	void init_lvl();
 	void init_lvl_one();
 	Level m_lvl;
-	uint32_t m_missiles;
+	uint32_t m_charges;
 	uint32_t m_ship_size;
 	std::vector<SpaceShip> m_ships;
 	SpaceMap m_map;

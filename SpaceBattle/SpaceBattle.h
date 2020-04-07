@@ -25,6 +25,9 @@ public:
 private:
 	bool scan_area(const Point& p);
 	void print_round_result() const;
+	bool are_ships_discovered() const;
+	void print_lvl_completed() const;
+	void print_lvl_failed() const;
 	void print_game_result();
 	void init_lvl();
 	void init_lvl_one();

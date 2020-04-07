@@ -95,6 +95,8 @@ void SpaceBattle::print_round_result() const
 	auto size = front_proj.size();
 	bool is_y_axis_printed = false;
 	static const std::string spacer{ ' ', ' ', ' ' };
+	// print meta information
+	std::cout << spacer << " CHARGES LEFT: " << m_charges << "\n\n";
 	// print map labels
 	std::cout << spacer << " FRONT PROJECTION          TOP PROJECTION\n\n";
 
@@ -138,6 +140,16 @@ void SpaceBattle::print_round_result() const
 	std::cout << "           Y                        Y\n";
 }
 
+bool SpaceBattle::are_ships_discovered() const
+{
+	bool are_ships_discovered = true;
+	for (const auto& ship : m_ships)
+	{
+		are_ships_discovered = are_ships_discovered && ship.is_discovered();
+	}
+	return are_ships_discovered;
+}
+
 void SpaceBattle::run_game_loop()
 {
 	while (m_charges != 0)
@@ -145,12 +157,15 @@ void SpaceBattle::run_game_loop()
 		// promt user for input
 		Point p = prompt_for_coordinates();
 		// make a shot and check if any ships were hit
+		--m_charges;
 		if (scan_area(p))
 		{
+			if (are_ships_discovered())
+			{
+				break;
+			}
 			print_round_result();
 		}
-		// decrement m_charges
-		--m_charges;
 	}
 	print_game_result();
 }
@@ -165,6 +180,7 @@ bool SpaceBattle::scan_area(const Point& p)
 		{
 			it->is_hitted = true;
 			m_map.update_projections(position);
+			ship.place_in_position(position);
 			return true;
 		}
 	}
@@ -173,12 +189,81 @@ bool SpaceBattle::scan_area(const Point& p)
 
 void SpaceBattle::print_game_result()
 {
+	if (!are_ships_discovered())
+	{
+		for (auto& ship : m_ships)
+		{
+			ship.uncover_position();
+			m_map.update_projections(ship.get_position());
+		}
+		// ask if player wants to try his luck and break through
+			// launch miny game to guess three points that does not
+			// contain enemy battleships
+		// otherwise print position of battleships and ask if he wants
+		print_round_result();
+		print_lvl_failed();
+		// to play again
+			// play again
+		// otherwise quite
+	}
+	else
+	{
+		print_lvl_completed();
+	}
+}
+
+void SpaceBattle::print_lvl_completed() const
+{
+	std::cout << "\n\n\n"
+		<< "************************************************************"
+		<< "\nYOU HAVE DISCOVERED ALL BATTLESHIPS"
+		<< "\nAND SUCCESSFULLY FOUND A SAFE ROUTE THROUGH SECTOR F"
+		<< "\nTO THE HPS REFUELING POINT."
+		<< "\n************************************************************\n\n\n";
+}
+
+void SpaceBattle::print_hint()
+{
+	std::vector<Point> points;
 	for (auto& ship : m_ships)
 	{
-		ship.uncover_position();
-		m_map.update_projections(ship.get_position());
+		auto pos = ship.get_position();
+		if (pos.size() > 1)
+		{
+			auto it = pos.begin();
+			it->is_hitted = true;
+			ship.place_in_position(pos);
+			points.push_back(*it);
+		}
 	}
+	m_map.update_projections(points);
 	print_round_result();
+	hide_ships();
+}
+
+void SpaceBattle::hide_ships()
+{
+	std::vector<Point> points;
+	for (const auto& ship : m_ships)
+	{
+		auto pos = ship.get_position();
+		for (auto it = pos.begin(); it != pos.end(); ++it)
+		{
+			it->is_hitted = false;
+			points.push_back(*it);
+		}
+	}
+	m_map.update_projections(points);
+}
+
+void SpaceBattle::print_lvl_failed() const
+{
+	std::cout << "\n\n\n"
+		<< "************************************************************"
+		<< "\nYOU HAVE FAILED TO DISCOVER ALL BATTLESHIPS"
+		<< "\nAND REFUSED TO BREAK THROUGHT THE AREA F."
+		<< "\nYOUR SPACESHIP WAS CAPTURED AND BROUGHT TO ENEMY BASE."
+		<< "\n************************************************************\n\n\n";
 }
 
 // --------------------------------------------------------------------------------------
@@ -390,40 +475,5 @@ void print_intro(Level lvl)
 		<< "\n\n\tHere is the picture that low energy scanning was able to get. All scanners on"
 		<< "\nthe spaceship capture 3D image using right handed Cartesian coordinate system and"
 		<< "\nreport it using two projections of the 3D image: top and front projections."
-		<< "\n\n";
-}
-
-
-
-void SpaceBattle::print_hint()
-{
-	std::vector<Point> points;
-	for (const auto& ship : m_ships)
-	{
-		auto pos = ship.get_position();
-		if (pos.size() > 1)
-		{
-			auto it = pos.begin();
-			it->is_hitted = true;
-			points.push_back(*it);
-		}
-	}
-	m_map.update_projections(points);
-	print_round_result();
-	hide_ships();
-}
-
-void SpaceBattle::hide_ships()
-{
-	std::vector<Point> points;
-	for (const auto& ship : m_ships)
-	{
-		auto pos = ship.get_position();
-		for (auto it = pos.begin(); it != pos.end(); ++it)
-		{
-			it->is_hitted = false;
-			points.push_back(*it);
-		}
-	}
-	m_map.update_projections(points);
+		<< "\n---------------------------------------------------------------------------------------\n\n";
 }

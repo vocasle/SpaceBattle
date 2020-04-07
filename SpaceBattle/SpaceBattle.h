@@ -21,11 +21,11 @@ class SpaceBattle
 {
 public:
 	SpaceBattle();
+	void run_game_loop();
+private:
+	bool scan_area(const Point& p);
 	void print_round_result() const;
 	void print_game_result();
-	void run_game_loop();
-	bool scan_area(const Point& p);
-private:
 	void init_lvl();
 	void init_lvl_one();
 	void print_hint();

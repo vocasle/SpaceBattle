@@ -1,4 +1,4 @@
-#include "SpaceMap.h"
+#include <SpaceBattle/SpaceMap.h>
 
 SpaceMap::SpaceMap(uint32_t grid_size): 
 	m_grid_size{grid_size},

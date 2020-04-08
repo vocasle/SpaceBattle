@@ -1,4 +1,4 @@
-#include "Point.h"
+#include <SpaceBattle/Point.h>
 #include <stdexcept>
 
 Point::Point(uint32_t x, uint32_t y, uint32_t z) : 

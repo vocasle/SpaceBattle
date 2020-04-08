@@ -1,4 +1,4 @@
-#include "SpaceShip.h"
+#include <SpaceBattle/SpaceShip.h>
 
 SpaceShip::SpaceShip() : m_position{} { }
 

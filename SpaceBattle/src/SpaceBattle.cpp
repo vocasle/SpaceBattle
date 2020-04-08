@@ -1,7 +1,7 @@
 ﻿// SpaceBattle.cpp : Defines the entry point for the application.
 //
 
-#include "SpaceBattle.h"
+#include <SpaceBattle/SpaceBattle.h>
 
 #include <random>
 #include <iostream>

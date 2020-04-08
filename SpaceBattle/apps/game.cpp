@@ -1,4 +1,4 @@
-#include "SpaceBattle.h"
+#include <SpaceBattle/SpaceBattle.h>
 
 int main()
 {

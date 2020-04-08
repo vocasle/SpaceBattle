@@ -18,6 +18,12 @@ SpaceBattle::SpaceBattle():
 	init_lvl();
 }
 
+uint32_t SpaceBattle::map_size()
+{
+	static const uint32_t size = 10;
+	return size;
+}
+
 void SpaceBattle::init_lvl()
 {
 	switch (m_lvl)
@@ -51,7 +57,7 @@ void SpaceBattle::init_lvl_one()
 void print_z_axis(const uint32_t num)
 {
 	// print z axis
-	if (num != 10)
+	if (num != SpaceBattle::map_size())
 	{
 		std::cout << ' ';
 	}
@@ -76,7 +82,7 @@ void print_y_axis(const std::string& spacer, uint32_t limit)
 void print_x_axis(const std::string& spacer, uint32_t num)
 {
 	// print x axis
-	if (num == 10 || num == 5)
+	if (num == SpaceBattle::map_size() || num == SpaceBattle::map_size() / 2)
 	{
 		std::cout << ' ' << ' ';
 	}
@@ -92,7 +98,7 @@ void SpaceBattle::print_round_result() const
 {
 	auto front_proj = m_map.get_front_projection();
 	auto top_proj = m_map.get_top_projection();
-	auto size = front_proj.size();
+	const auto size = front_proj.size();
 	bool is_y_axis_printed = false;
 	static const std::string spacer{ ' ', ' ', ' ' };
 	// print meta information
@@ -118,7 +124,7 @@ void SpaceBattle::print_round_result() const
 			std::cout << el << ' ';
 		}
 		// print Z axis label
-		if (i == 4)
+		if (i + 1 == size / 2)
 		{
 			std::cout << "Z";
 		}
@@ -129,7 +135,7 @@ void SpaceBattle::print_round_result() const
 			std::cout << el << ' ';
 		}
 		// print X axis label
-		if (i == 4)
+		if (i + 1 == size / 2)
 		{
 			std::cout << "X";
 		}
@@ -278,11 +284,11 @@ uint32_t random_int(uint32_t from, uint32_t to)
 	return ud(e);
 }
 
-Point generate_point()
+Point generate_point(uint32_t from, uint32_t to)
 {
-	auto x = random_int(1, 10);
-	auto y = random_int(1, 10);
-	auto z = random_int(1, 10);
+	auto x = random_int(from, to);
+	auto y = random_int(from, to);
+	auto z = random_int(from, to);
 	return Point{ x,y,z };
 }
 
@@ -341,9 +347,8 @@ std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
 	}
 
 	std::vector<Point> position;
-	position.push_back(generate_point());
+	position.push_back(generate_point(1, SpaceBattle::map_size()));
 	int32_t cnt = 1;
-	const uint32_t map_size = 10;
 	while (position.size() != ship_size)
 	{
 		Point base_point = position.at(position.size() - 1);
@@ -375,15 +380,15 @@ std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
 
 		if (p.x == 0)
 		{
-			p.x = next_val(points_on_axis(Axis::x, position), base_point.x, 1, 10);
+			p.x = next_val(points_on_axis(Axis::x, position), base_point.x, 1, SpaceBattle::map_size());
 		}
 		else if (p.y == 0)
 		{
-			p.y = next_val(points_on_axis(Axis::y, position), base_point.y, 1, 10);
+			p.y = next_val(points_on_axis(Axis::y, position), base_point.y, 1, SpaceBattle::map_size());
 		}
 		else
 		{
-			p.z = next_val(points_on_axis(Axis::z, position), base_point.z, 1, 10);
+			p.z = next_val(points_on_axis(Axis::z, position), base_point.z, 1, SpaceBattle::map_size());
 		}
 		position.push_back(p);
 		++cnt;

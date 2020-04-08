@@ -22,6 +22,7 @@ class SpaceBattle
 public:
 	SpaceBattle();
 	void run_game_loop();
+	static uint32_t map_size();
 private:
 	bool scan_area(const Point& p);
 	void print_round_result() const;

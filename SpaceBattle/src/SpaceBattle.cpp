@@ -436,11 +436,11 @@ void print_intro(Level lvl)
 
 void init_localization()
 {
+	// is needed to support UTF-8 output to std::cout
+	system("chcp 65001");
 	boost::locale::generator gen;
 	gen.add_messages_path("..\\assets\\i18n");
 	gen.add_messages_domain("game");
-
-
 	std::locale::global(gen(""));
 	std::cout.imbue(std::locale());
 }

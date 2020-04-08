@@ -33,7 +33,6 @@ private:
 	void init_lvl();
 	void init_lvl_one();
 	void print_hint();
-	void hide_ships();
 	Level m_lvl;
 	uint32_t m_charges;
 	uint32_t m_ship_size;
@@ -47,5 +46,5 @@ void print_welcome_msg();
 Point prompt_for_coordinates();
 Axis generate_axis();
 uint32_t random_int(uint32_t from, uint32_t to);
-std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis);
+std::vector<Point> generate_position(uint32_t ship_size, Axis axis);
 void print_intro(Level lvl);

@@ -56,7 +56,6 @@ void SpaceBattle::init_lvl_one()
 
 void print_z_axis(const uint32_t num)
 {
-	// print z axis
 	if (num != SpaceBattle::map_size())
 	{
 		std::wcout << ' ';
@@ -81,7 +80,6 @@ void print_y_axis(const std::wstring & spacer, uint32_t limit)
 
 void print_x_axis(const std::wstring & spacer, uint32_t num)
 {
-	// print x axis
 	if (num == SpaceBattle::map_size() || num == SpaceBattle::map_size() / 2)
 	{
 		std::wcout << ' ' << ' ';
@@ -93,7 +91,7 @@ void print_x_axis(const std::wstring & spacer, uint32_t num)
 	std::wcout << num << ' ';
 }
 
-// prints front and top projections of 3D battle space to cout
+// prints front and top projections of 3D battle space to stdout
 void SpaceBattle::print_round_result() const
 {
 	auto front_proj = m_map.get_front_projection();
@@ -103,7 +101,7 @@ void SpaceBattle::print_round_result() const
 	static const std::wstring spacer{ ' ', ' ', ' ' };
 	// print meta information
 	std::wcout << spacer << " CHARGES LEFT: " << m_charges << "\n\n";
-	// print map labels
+	// print projections' labels
 	std::wcout << spacer << " FRONT PROJECTION          TOP PROJECTION\n\n";
 
 	for (size_t i = 0; i < size; ++i)
@@ -142,10 +140,11 @@ void SpaceBattle::print_round_result() const
 
 		std::wcout << '\n';
 	}
-
+	// print Y axis labels for both projections
 	std::wcout << "           Y                        Y\n";
 }
 
+// returns true only if all battleships were found by user
 bool SpaceBattle::are_ships_discovered() const
 {
 	bool are_ships_discovered = true;
@@ -155,15 +154,16 @@ bool SpaceBattle::are_ships_discovered() const
 	}
 	return are_ships_discovered;
 }
-
+// main game loop
+// executes n times, where n is amount of charges
 void SpaceBattle::run_game_loop()
 {
 	while (m_charges != 0)
 	{
-		// promt user for input
-		Point p = prompt_for_coordinates();
-		// make a shot and check if any ships were hit
 		--m_charges;
+		// promt user for coordinates of the target point
+		Point p = prompt_for_coordinates();
+		// scan target point and check if any ships were discovered
 		if (scan_area(p))
 		{
 			if (are_ships_discovered())
@@ -175,7 +175,7 @@ void SpaceBattle::run_game_loop()
 	}
 	print_game_result();
 }
-
+// checks if any ship were hit by the scanning beam
 bool SpaceBattle::scan_area(const Point& p)
 {
 	for (auto& ship : m_ships)
@@ -192,7 +192,7 @@ bool SpaceBattle::scan_area(const Point& p)
 	}
 	return false;
 }
-
+// prints end game results to stdout
 void SpaceBattle::print_game_result()
 {
 	if (!are_ships_discovered())
@@ -202,6 +202,7 @@ void SpaceBattle::print_game_result()
 			ship.uncover_position();
 			m_map.update_projections(ship.get_position());
 		}
+		// TODO:
 		// ask if player wants to try his luck and break through
 			// launch miny game to guess three points that does not
 			// contain enemy battleships
@@ -217,7 +218,7 @@ void SpaceBattle::print_game_result()
 		print_lvl_completed();
 	}
 }
-
+// outputs success message about lvl completion to stdout
 void SpaceBattle::print_lvl_completed() const
 {
 	std::wcout << "\n\n\n"
@@ -227,7 +228,7 @@ void SpaceBattle::print_lvl_completed() const
 		<< "\nTO THE HPS REFUELING POINT."
 		<< "\n************************************************************\n\n\n";
 }
-
+// prints only one coordinate of the battleships if ship size is greater than 1
 void SpaceBattle::print_hint()
 {
 	std::vector<Point> points;
@@ -244,24 +245,8 @@ void SpaceBattle::print_hint()
 	}
 	m_map.update_projections(points);
 	print_round_result();
-	hide_ships();
 }
-
-void SpaceBattle::hide_ships()
-{
-	std::vector<Point> points;
-	for (const auto& ship : m_ships)
-	{
-		auto pos = ship.get_position();
-		for (auto it = pos.begin(); it != pos.end(); ++it)
-		{
-			it->is_hitted = false;
-			points.push_back(*it);
-		}
-	}
-	m_map.update_projections(points);
-}
-
+// outputs message about lvl completion failure to stdout
 void SpaceBattle::print_lvl_failed() const
 {
 	std::wcout << "\n\n\n"
@@ -276,6 +261,7 @@ void SpaceBattle::print_lvl_failed() const
 // helper functions
 // --------------------------------------------------------------------------------------
 
+// generates random uint32_t in [from, to] range
 uint32_t random_int(uint32_t from, uint32_t to)
 {
 	std::random_device rd{};
@@ -284,6 +270,7 @@ uint32_t random_int(uint32_t from, uint32_t to)
 	return ud(e);
 }
 
+// generates Point with random coordinates x,y,z from [from, to] range
 Point generate_point(uint32_t from, uint32_t to)
 {
 	auto x = random_int(from, to);
@@ -292,14 +279,16 @@ Point generate_point(uint32_t from, uint32_t to)
 	return Point{ x,y,z };
 }
 
+// generates random cortesian axis
 Axis generate_axis()
 {
+	// there are only 3 axis in 3D space, hence random_int called with 0 and 2
 	return Axis(random_int(0, 2));
 }
 
-// returns all point coordinates that match axis
+// returns all coordinates that belong to axis
 // for example if axis is Axis::x, then
-// all point.x of points will be returned
+// all point.x of points vector will be returned
 std::vector<uint32_t> points_on_axis(Axis a, const std::vector<Point>& points)
 {
 	std::vector<uint32_t> points_on_axis;
@@ -320,8 +309,13 @@ std::vector<uint32_t> points_on_axis(Axis a, const std::vector<Point>& points)
 	}
 	return points_on_axis;
 }
-
-uint32_t next_val(const std::vector<uint32_t>& forbidden_vals, uint32_t prev_val, uint32_t min_val = 1, uint32_t max_val = 10)
+// returns next or previous value right after or before the values from forbidden_vals vector
+// returned value is guaranteed to be in range [min_val, max_val]
+uint32_t next_val(
+	const std::vector<uint32_t>& forbidden_vals, 
+	uint32_t prev_val, 
+	uint32_t min_val = 1, 
+	uint32_t max_val = 10)
 {
 	auto [min_el, max_el] = std::minmax_element(forbidden_vals.begin(), forbidden_vals.end());
 	if (*max_el + 1 <= max_val)
@@ -337,8 +331,27 @@ uint32_t next_val(const std::vector<uint32_t>& forbidden_vals, uint32_t prev_val
 			+ "].");
 	}
 }
+// aligns point p to the reference point according to axis a
+// in other words, sets coordinate of p equals to ref
+// that match the axis a
+void align_point(const Point& ref, Point& p, Axis a)
+{
+	switch (a)
+	{
+	case Axis::x:
+		p.x = ref.x;
+		break;
+	case Axis::y:
+		p.y = ref.y;
+		break;
+	case Axis::z:
+		p.z = ref.z;
+		break;
+	}
+}
 
-std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
+// generates position of the spaceship
+std::vector<Point> generate_position(uint32_t ship_size, Axis axis)
 {
 	auto axis2 = generate_axis();
 	while (axis2 == axis)
@@ -353,30 +366,8 @@ std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
 	{
 		Point base_point = position.at(position.size() - 1);
 		Point p{ 0,0,0 };
-		switch (axis)
-		{
-		case Axis::x:
-			p.x = base_point.x;
-			break;
-		case Axis::y:
-			p.y = base_point.y;
-			break;
-		case Axis::z:
-			p.z = base_point.z;
-			break;
-		}
-		switch (axis2)
-		{
-		case Axis::x:
-			p.x = base_point.x;
-			break;
-		case Axis::y:
-			p.y = base_point.y;
-			break;
-		case Axis::z:
-			p.z = base_point.z;
-			break;
-		}
+		align_point(base_point, p, axis);
+		align_point(base_point, p, axis2);
 
 		if (p.x == 0)
 		{
@@ -395,36 +386,13 @@ std::vector<Point> generate_space_position(uint32_t ship_size, Axis axis)
 	}
 	return position;
 }
-
-std::vector<Point> generate_points(uint32_t num_of_points, uint32_t ship_size)
-{
-	std::vector<Point> points(num_of_points);
-	for (size_t i = 0; i < num_of_points; i += ship_size)
-	{
-		auto position = generate_space_position(ship_size, generate_axis());
-		for (size_t j = 0; j < position.size(); ++j)
-		{
-			points.at(i + j) = position.at(j);
-		}
-	}
-	return points;
-}
-
+// generates enemy battleships
 std::vector<SpaceShip> generate_ships(uint32_t ship_size, uint32_t num_of_ships)
 {
 	std::vector<SpaceShip> ships(num_of_ships);
-	auto points = generate_points(num_of_ships * ship_size, ship_size);
-	uint32_t ships_processed = 0;
-	std::vector<Point> position;
-	for (size_t i = 0; i < points.size(); ++i)
+	for (auto& ship : ships)
 	{
-		position.push_back(points[i]);
-		if (position.size() == ship_size)
-		{
-			ships.at(ships_processed).place_in_position(position);
-			position = {};
-			++ships_processed;
-		}
+		ship.place_in_position(generate_position(ship_size, generate_axis()));
 	}
 	return ships;
 }
@@ -443,8 +411,8 @@ void print_welcome_msg()
 		<< "  #       #   #      #      #          #       #          #\n"
 		<< "  ########    #      #      #          #       ########   ########\n\n\n";
 }
-
-
+// prompts user for target point coordinates
+// throws std::runtime_exception if user input non integral values for X,Y or Z
 Point prompt_for_coordinates()
 {
 	std::wcout << "Target point coordinates (X Y Z): ";
@@ -452,7 +420,7 @@ Point prompt_for_coordinates()
 	std::cin >> p;
 	return p;
 }
-
+// prints story text to stdout for specific lvl of the game
 void print_intro(Level lvl)
 {
 	// TODO move all text to file

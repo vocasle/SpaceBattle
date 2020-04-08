@@ -2,6 +2,7 @@
 //
 
 #include <SpaceBattle/SpaceBattle.h>
+#include <boost/locale.hpp>
 
 #include <random>
 #include <iostream>
@@ -14,6 +15,7 @@ SpaceBattle::SpaceBattle():
 	m_map{SpaceMap{10}},
 	m_ships{0}
 { 
+	init_localization();
 	print_welcome_msg();
 	init_lvl();
 }
@@ -58,37 +60,37 @@ void print_z_axis(const uint32_t num)
 {
 	if (num != SpaceBattle::map_size())
 	{
-		std::wcout << ' ';
+		std::cout << ' ';
 	}
-	std::wcout << num << ' ';
+	std::cout << num << ' ';
 }
 
-void print_y_axis(const std::wstring & spacer, uint32_t limit)
+void print_y_axis(const std::string & spacer, uint32_t limit)
 {
-	std::wcout << spacer;
+	std::cout << spacer;
 	for (size_t j = 0; j < limit; ++j)
 	{
-		std::wcout << j + 1 << ' ';
+		std::cout << j + 1 << ' ';
 	}
-	std::wcout << spacer << ' ';
+	std::cout << spacer << ' ';
 	for (size_t j = 0; j < limit; ++j)
 	{
-		std::wcout << j + 1 << ' ';
+		std::cout << j + 1 << ' ';
 	}
-	std::wcout << '\n';
+	std::cout << '\n';
 }
 
-void print_x_axis(const std::wstring & spacer, uint32_t num)
+void print_x_axis(const std::string & spacer, uint32_t num)
 {
 	if (num == SpaceBattle::map_size() || num == SpaceBattle::map_size() / 2)
 	{
-		std::wcout << ' ' << ' ';
+		std::cout << ' ' << ' ';
 	}
 	else
 	{
-		std::wcout << spacer;
+		std::cout << spacer;
 	}
-	std::wcout << num << ' ';
+	std::cout << num << ' ';
 }
 
 // prints front and top projections of 3D battle space to stdout
@@ -98,11 +100,12 @@ void SpaceBattle::print_round_result() const
 	auto top_proj = m_map.get_top_projection();
 	const auto size = front_proj.size();
 	bool is_y_axis_printed = false;
-	static const std::wstring spacer{ ' ', ' ', ' ' };
+	static const std::string spacer{ ' ', ' ', ' ' };
 	// print meta information
-	std::wcout << spacer << " CHARGES LEFT: " << m_charges << "\n\n";
+	std::cout << spacer << ' ' << translate("charges_left") <<' ' << m_charges << "\n\n";
 	// print projections' labels
-	std::wcout << spacer << " FRONT PROJECTION          TOP PROJECTION\n\n";
+	std::cout << spacer << ' ' << translate("front_projection_lbl") <<
+		"          " << translate("top_projection_lbl") <<"\n\n";
 
 	for (size_t i = 0; i < size; ++i)
 	{
@@ -119,29 +122,29 @@ void SpaceBattle::print_round_result() const
 		// print rows of front projection
 		for (const auto& el : front_row)
 		{
-			std::wcout << el << ' ';
+			std::cout << el << ' ';
 		}
 		// print Z axis label
 		if (i + 1 == size / 2)
 		{
-			std::wcout << "Z";
+			std::cout << "Z";
 		}
 		print_x_axis(spacer, i + 1);
 		// print rows of top projection
 		for (const auto& el : top_row)
 		{
-			std::wcout << el << ' ';
+			std::cout << el << ' ';
 		}
 		// print X axis label
 		if (i + 1 == size / 2)
 		{
-			std::wcout << "X";
+			std::cout << "X";
 		}
 
-		std::wcout << '\n';
+		std::cout << '\n';
 	}
 	// print Y axis labels for both projections
-	std::wcout << "           Y                        Y\n";
+	std::cout << "           Y                        Y\n";
 }
 
 // returns true only if all battleships were found by user
@@ -221,11 +224,9 @@ void SpaceBattle::print_game_result()
 // outputs success message about lvl completion to stdout
 void SpaceBattle::print_lvl_completed() const
 {
-	std::wcout << "\n\n\n"
-		<< "************************************************************"
-		<< "\nYOU HAVE DISCOVERED ALL BATTLESHIPS"
-		<< "\nAND SUCCESSFULLY FOUND A SAFE ROUTE THROUGH SECTOR F"
-		<< "\nTO THE HPS REFUELING POINT."
+	std::cout << "\n\n\n"
+		<< "************************************************************\n"
+		<< translate("lvl_1_completed_msg")
 		<< "\n************************************************************\n\n\n";
 }
 // prints only one coordinate of the battleships if ship size is greater than 1
@@ -249,11 +250,9 @@ void SpaceBattle::print_hint()
 // outputs message about lvl completion failure to stdout
 void SpaceBattle::print_lvl_failed() const
 {
-	std::wcout << "\n\n\n"
-		<< "************************************************************"
-		<< "\nYOU HAVE FAILED TO DISCOVER ALL BATTLESHIPS"
-		<< "\nAND REFUSED TO BREAK THROUGHT THE AREA F."
-		<< "\nYOUR SPACESHIP WAS CAPTURED AND BROUGHT TO ENEMY BASE."
+	std::cout << "\n\n\n"
+		<< "************************************************************\n"
+		<< translate("lvl_1_failed_msg")
 		<< "\n************************************************************\n\n\n";
 }
 
@@ -403,7 +402,7 @@ std::vector<SpaceShip> generate_ships(uint32_t ship_size, uint32_t num_of_ships)
 
 void print_welcome_msg()
 {
-	std::wcout
+	std::cout
 		<< "  ########   ########     #######    #######   ########\n"
 		<< "  #          #       #   #      #   #          #\n"
 		<< "  ########   ########    ########   #          ########\n"
@@ -419,7 +418,7 @@ void print_welcome_msg()
 // throws std::runtime_exception if user input non integral values for X,Y or Z
 Point prompt_for_coordinates()
 {
-	std::wcout << "Target point coordinates (X Y Z): ";
+	std::cout << translate("target_point_prompt_msg");
 	Point p{};
 	std::cin >> p;
 	return p;
@@ -428,29 +427,26 @@ Point prompt_for_coordinates()
 void print_intro(Level lvl)
 {
 	// TODO move all text to file
-	std::wcout << "\tYou are the Chief HPS Engineer on the research spaceship."
-		<< "\nYour ship is on course to HPS refueling point."
-		<< "\n\n\tSpacehip's main mission is detection of singularities"
-		<< "\nthat prevent good communication with Space Flight Control Center."
-		<< "\nThe tool that makes that detection possible is high precision scanner (HPS)."
-		<< "\n\n\tIn 0.5 parsecs from HPS refueling point you were called on the"
-		<< "\nbridge due to emergency. Spacehip's sensors detected some abnormal"
-		<< "\nradiation in sector F."
-		<< "\n\n\tThe Captain ordered to perform low energy scanning on the sector F."
-		<< "\nScanners detected 3 battleships nearby. Two 3-masted battleships and one"
-		<< "\n5-masted command ship. But due to the fact that scanning was performed in"
-		<< "\nlow energy mode you were not able to detect precise location of battleships."
-		<< "\n\n\tYou were ordered to detect precise location of the battleships to find"
-		<< "\na safe route through sector F using HPS."
-		<< "\n\n\tDue to the fact that you almost used all charges of the HPS in sector"
-		<< "\nE you have only 20 charges left."
-		<< "\n\n\tHPS emits a beam that allows to gen precise information"
-		<< "\nof the area nearby the target point."
-		<< "\nCoordinates of the target point must be entered precisely in following order: X Y Z."
-		<< "\nThe coordinates must be separated by space and after entering the coordinates"
-		<< "\nthey must be commited with commit button (Enter)."
-		<< "\n\n\tHere is the picture that low energy scanning was able to get. All scanners on"
-		<< "\nthe spaceship capture 3D image using right handed Cartesian coordinate system and"
-		<< "\nreport it using two projections of the 3D image: top and front projections."
+	std::cout << translate("lvl_1_intro")
 		<< "\n---------------------------------------------------------------------------------------\n\n";
+}
+
+#include <fstream>
+#include <sstream>
+
+void init_localization()
+{
+	boost::locale::generator gen;
+	gen.add_messages_path("..\\assets\\i18n");
+	gen.add_messages_domain("game");
+
+
+	std::locale::global(gen(""));
+	std::cout.imbue(std::locale());
+}
+
+std::string translate(const std::string& msg_id)
+{
+	auto str = boost::locale::translate(msg_id);
+	return str;
 }

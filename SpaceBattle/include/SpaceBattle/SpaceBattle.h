@@ -48,3 +48,5 @@ Axis generate_axis();
 uint32_t random_int(uint32_t from, uint32_t to);
 std::vector<Point> generate_position(uint32_t ship_size, Axis axis);
 void print_intro(Level lvl);
+void init_localization();
+std::string translate(const std::string& msg_id);

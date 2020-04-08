@@ -59,38 +59,38 @@ void print_z_axis(const uint32_t num)
 	// print z axis
 	if (num != SpaceBattle::map_size())
 	{
-		std::cout << ' ';
+		std::wcout << ' ';
 	}
-	std::cout << num << ' ';
+	std::wcout << num << ' ';
 }
 
-void print_y_axis(const std::string& spacer, uint32_t limit)
+void print_y_axis(const std::wstring & spacer, uint32_t limit)
 {
-	std::cout << spacer;
+	std::wcout << spacer;
 	for (size_t j = 0; j < limit; ++j)
 	{
-		std::cout << j + 1 << ' ';
+		std::wcout << j + 1 << ' ';
 	}
-	std::cout << spacer << ' ';
+	std::wcout << spacer << ' ';
 	for (size_t j = 0; j < limit; ++j)
 	{
-		std::cout << j + 1 << ' ';
+		std::wcout << j + 1 << ' ';
 	}
-	std::cout << '\n';
+	std::wcout << '\n';
 }
 
-void print_x_axis(const std::string& spacer, uint32_t num)
+void print_x_axis(const std::wstring & spacer, uint32_t num)
 {
 	// print x axis
 	if (num == SpaceBattle::map_size() || num == SpaceBattle::map_size() / 2)
 	{
-		std::cout << ' ' << ' ';
+		std::wcout << ' ' << ' ';
 	}
 	else
 	{
-		std::cout << spacer;
+		std::wcout << spacer;
 	}
-	std::cout << num << ' ';
+	std::wcout << num << ' ';
 }
 
 // prints front and top projections of 3D battle space to cout
@@ -100,11 +100,11 @@ void SpaceBattle::print_round_result() const
 	auto top_proj = m_map.get_top_projection();
 	const auto size = front_proj.size();
 	bool is_y_axis_printed = false;
-	static const std::string spacer{ ' ', ' ', ' ' };
+	static const std::wstring spacer{ ' ', ' ', ' ' };
 	// print meta information
-	std::cout << spacer << " CHARGES LEFT: " << m_charges << "\n\n";
+	std::wcout << spacer << " CHARGES LEFT: " << m_charges << "\n\n";
 	// print map labels
-	std::cout << spacer << " FRONT PROJECTION          TOP PROJECTION\n\n";
+	std::wcout << spacer << " FRONT PROJECTION          TOP PROJECTION\n\n";
 
 	for (size_t i = 0; i < size; ++i)
 	{
@@ -121,29 +121,29 @@ void SpaceBattle::print_round_result() const
 		// print rows of front projection
 		for (const auto& el : front_row)
 		{
-			std::cout << el << ' ';
+			std::wcout << el << ' ';
 		}
 		// print Z axis label
 		if (i + 1 == size / 2)
 		{
-			std::cout << "Z";
+			std::wcout << "Z";
 		}
 		print_x_axis(spacer, i + 1);
 		// print rows of top projection
 		for (const auto& el : top_row)
 		{
-			std::cout << el << ' ';
+			std::wcout << el << ' ';
 		}
 		// print X axis label
 		if (i + 1 == size / 2)
 		{
-			std::cout << "X";
+			std::wcout << "X";
 		}
 
-		std::cout << '\n';
+		std::wcout << '\n';
 	}
 
-	std::cout << "           Y                        Y\n";
+	std::wcout << "           Y                        Y\n";
 }
 
 bool SpaceBattle::are_ships_discovered() const
@@ -220,7 +220,7 @@ void SpaceBattle::print_game_result()
 
 void SpaceBattle::print_lvl_completed() const
 {
-	std::cout << "\n\n\n"
+	std::wcout << "\n\n\n"
 		<< "************************************************************"
 		<< "\nYOU HAVE DISCOVERED ALL BATTLESHIPS"
 		<< "\nAND SUCCESSFULLY FOUND A SAFE ROUTE THROUGH SECTOR F"
@@ -264,7 +264,7 @@ void SpaceBattle::hide_ships()
 
 void SpaceBattle::print_lvl_failed() const
 {
-	std::cout << "\n\n\n"
+	std::wcout << "\n\n\n"
 		<< "************************************************************"
 		<< "\nYOU HAVE FAILED TO DISCOVER ALL BATTLESHIPS"
 		<< "\nAND REFUSED TO BREAK THROUGHT THE AREA F."
@@ -431,7 +431,7 @@ std::vector<SpaceShip> generate_ships(uint32_t ship_size, uint32_t num_of_ships)
 
 void print_welcome_msg()
 {
-	std::cout
+	std::wcout
 		<< "  ########   ########     #######    #######   ########\n"
 		<< "  #          #       #   #      #   #          #\n"
 		<< "  ########   ########    ########   #          ########\n"
@@ -447,7 +447,7 @@ void print_welcome_msg()
 
 Point prompt_for_coordinates()
 {
-	std::cout << "Target point coordinates (X Y Z): ";
+	std::wcout << "Target point coordinates (X Y Z): ";
 	Point p{};
 	std::cin >> p;
 	return p;
@@ -456,7 +456,7 @@ Point prompt_for_coordinates()
 void print_intro(Level lvl)
 {
 	// TODO move all text to file
-	std::cout << "\tYou are the Chief HPS Engineer on the research spaceship."
+	std::wcout << "\tYou are the Chief HPS Engineer on the research spaceship."
 		<< "\nYour ship is on course to HPS refueling point."
 		<< "\n\n\tSpacehip's main mission is detection of singularities"
 		<< "\nthat prevent good communication with Space Flight Control Center."

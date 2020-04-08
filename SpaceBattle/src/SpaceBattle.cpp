@@ -319,9 +319,13 @@ uint32_t next_val(
 {
 	auto [min_el, max_el] = std::minmax_element(forbidden_vals.begin(), forbidden_vals.end());
 	if (*max_el + 1 <= max_val)
+	{
 		return *max_el + 1;
+	}
 	else if (*min_el - 1 >= min_val)
+	{
 		return *min_el - 1;
+	}
 	else
 	{
 		error("Error in next_val() - Next value will be out of range ["

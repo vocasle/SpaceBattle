@@ -12,14 +12,14 @@ enum class Projection
 class SpaceMap
 {
 public:
-	SpaceMap(uint32_t grid_size);
+	SpaceMap();
 	const std::vector<std::vector<char>>& get_front_projection() const;
 	const std::vector<std::vector<char>>& get_top_projection() const;
 	void update_projections(const std::vector<Point>& points);
 	void update_top_projection(const std::vector<std::vector<char>>& proj);
-	uint32_t size() const { return m_grid_size; }
+	static uint32_t size();
 private:
-	uint32_t m_grid_size;
+	static const uint32_t grid_size = 10;
 	std::vector<std::vector<char>> m_front_proj;
 	std::vector<std::vector<char>> m_top_proj;
 };

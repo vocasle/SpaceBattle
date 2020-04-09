@@ -1,7 +1,6 @@
 #include <SpaceBattle/SpaceMap.h>
 
-SpaceMap::SpaceMap(uint32_t grid_size): 
-	m_grid_size{grid_size},
+SpaceMap::SpaceMap(): 
 	m_front_proj(grid_size, std::vector<char>(grid_size, '*')),
 	m_top_proj(grid_size, std::vector<char>(grid_size, '*'))
 { }
@@ -30,6 +29,11 @@ void SpaceMap::update_projections(const std::vector<Point>& points)
 void SpaceMap::update_top_projection(const std::vector<std::vector<char>>& proj)
 {
 	m_top_proj = proj;
+}
+
+uint32_t SpaceMap::size()
+{
+	return grid_size;
 }
 
 void plot_point(const Point& point,

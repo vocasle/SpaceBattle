@@ -98,55 +98,64 @@ void print_x_axis(const std::string & spacer, uint32_t num)
 // prints front and top projections of 3D battle space to stdout
 void SpaceBattle::print_round_result() const
 {
-	auto front_proj = m_map.get_front_projection();
-	auto top_proj = m_map.get_top_projection();
-	const auto size = front_proj.size();
-	bool is_y_axis_printed = false;
-	static const std::string spacer{ ' ', ' ', ' ' };
-	// print meta information
-	std::cout << spacer << ' ' << get_localized_str("charges_left") <<' ' << m_charges << "\n\n";
-	// print projections' labels
-	std::cout << spacer << ' ' << get_localized_str("front_projection_lbl") <<
-		"          " << get_localized_str("top_projection_lbl") <<"\n\n";
-
-	for (size_t i = 0; i < size; ++i)
+	if (m_detected)
 	{
-		const auto& front_row = front_proj.at(size - 1 - i);
-		const auto& top_row = top_proj.at(i);
-		// print y axis
-		if (!is_y_axis_printed)
-		{
-			print_y_axis(spacer, front_row.size());
-			is_y_axis_printed = true;
-		}
+		auto front_proj = m_map.get_front_projection();
+		auto top_proj = m_map.get_top_projection();
+		const auto size = front_proj.size();
+		bool is_y_axis_printed = false;
+		static const std::string spacer{ ' ', ' ', ' ' };
+		// print meta information
+		std::cout << spacer << ' ' << get_localized_str("charges_left") << ' ' << m_charges << "\n\n";
+		// print projections' labels
+		std::cout << spacer << ' ' << get_localized_str("front_projection_lbl") <<
+			"          " << get_localized_str("top_projection_lbl") << "\n\n";
 
-		print_z_axis(size - i);
-		// print rows of front projection
-		for (const auto& el : front_row)
+		for (size_t i = 0; i < size; ++i)
 		{
-			std::cout << el << ' ';
-		}
-		// print Z axis label
-		if (i + 1 == size / 2)
-		{
-			std::cout << "Z";
-		}
-		print_x_axis(spacer, i + 1);
-		// print rows of top projection
-		for (const auto& el : top_row)
-		{
-			std::cout << el << ' ';
-		}
-		// print X axis label
-		if (i + 1 == size / 2)
-		{
-			std::cout << "X";
-		}
+			const auto& front_row = front_proj.at(size - 1 - i);
+			const auto& top_row = top_proj.at(i);
+			// print y axis
+			if (!is_y_axis_printed)
+			{
+				print_y_axis(spacer, front_row.size());
+				is_y_axis_printed = true;
+			}
 
-		std::cout << '\n';
+			print_z_axis(size - i);
+			// print rows of front projection
+			for (const auto& el : front_row)
+			{
+				std::cout << el << ' ';
+			}
+			// print Z axis label
+			if (i + 1 == size / 2)
+			{
+				std::cout << "Z";
+			}
+			print_x_axis(spacer, i + 1);
+			// print rows of top projection
+			for (const auto& el : top_row)
+			{
+				std::cout << el << ' ';
+			}
+			// print X axis label
+			if (i + 1 == size / 2)
+			{
+				std::cout << "X";
+			}
+
+			std::cout << '\n';
+		}
+		// print Y axis labels for both projections
+		std::cout << "           Y                        Y\n";
 	}
-	// print Y axis labels for both projections
-	std::cout << "           Y                        Y\n";
+	else
+	{
+		std::cout << get_localized_str("no_obstacles_found")
+			<< '\n' << get_localized_str("charges_left") << ": " << m_charges
+			<< '\n';
+	}
 }
 
 // returns true only if all battleships were found by user
@@ -169,19 +178,17 @@ void SpaceBattle::run_game_loop()
 		// promt user for coordinates of the target point
 		Point p = prompt_for_coordinates();
 		// scan target point and check if any ships were discovered
-		if (scan_area(p))
+		scan_area(p);
+		if (are_ships_discovered())
 		{
-			if (are_ships_discovered())
-			{
-				break;
-			}
-			print_round_result();
+			break;
 		}
+		print_round_result();
 	}
 	print_game_result();
 }
 // checks if any ship were hit by the scanning beam
-bool SpaceBattle::scan_area(const Point& p)
+void SpaceBattle::scan_area(const Point& p)
 {
 	for (auto& ship : m_ships)
 	{
@@ -192,10 +199,11 @@ bool SpaceBattle::scan_area(const Point& p)
 			it->is_hitted = true;
 			m_map.update_projections(position);
 			ship.place_in_position(position);
-			return true;
+			m_detected = true;
+			return;
 		}
 	}
-	return false;
+	m_detected = false;
 }
 // promts user for answer yes/no
 bool SpaceBattle::wants_to_rush_through()

@@ -24,7 +24,7 @@ public:
 	void run_game_loop();
 	static uint32_t map_size();
 private:
-	bool scan_area(const Point& p);
+	void scan_area(const Point& p);
 	void print_round_result() const;
 	bool are_ships_discovered() const;
 	void print_lvl_completed() const;
@@ -39,6 +39,7 @@ private:
 	uint32_t m_ship_size;
 	std::vector<SpaceShip> m_ships;
 	SpaceMap m_map;
+	bool m_detected;
 };
 
 std::vector<SpaceShip> generate_ships(uint32_t ship_size, uint32_t num_of_ships);

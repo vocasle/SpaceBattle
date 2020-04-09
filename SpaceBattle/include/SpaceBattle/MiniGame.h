@@ -11,7 +11,7 @@ class MiniGame
 {
 public:
 	MiniGame(const std::vector<SpaceShip>& ships);
-	bool play();
+	bool won();
 private:
 	Point prompt();
 	std::vector<Point> m_points;

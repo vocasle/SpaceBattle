@@ -6,7 +6,7 @@ MiniGame::MiniGame(const std::vector<SpaceShip>& ships):
 	m_points{get_points(ships)}
 { }
 
-bool MiniGame::play()
+bool MiniGame::won()
 {
 	// promt user for input
 	Point p = prompt();

@@ -11,7 +11,7 @@
 #include <algorithm>
 
 SpaceBattle::SpaceBattle() :
-	m_sector{ Sector::k },
+	m_sector{ Sector::f },
 	m_charges{ 0 },
 	m_map{ SpaceMap{} },
 	m_detected{ false },
@@ -41,11 +41,8 @@ void SpaceBattle::init_sector()
 void SpaceBattle::init_sector_f()
 {
 	print_intro(m_sector);
-	m_detected = true;
 	m_charges = 20;
-	// generate 2 3-decked ships 
 	auto battleships = generate_ships(3, 2);
-	// and one 5-decked ship
 	auto command_ship = generate_ships(5, 1);
 	std::vector<SpaceShip> ships;
 	ships.reserve(battleships.size() + command_ship.size());
@@ -53,20 +50,16 @@ void SpaceBattle::init_sector_f()
 	ships.insert(ships.end(), command_ship.begin(), command_ship.end());
 	m_ships = ships;
 	print_hint();
-	m_detected = false;
 }
 
 void SpaceBattle::init_sector_k()
 {
 	m_charges = 30;
 	m_map = SpaceMap{};
-	m_detected = true;
+	m_detected = false;
 	print_intro(m_sector);
-	// generate 4 3-decked ships 
 	auto battleships = generate_ships(3, 4);
-	// and 2 5-decked ships
 	auto command_ship = generate_ships(5, 2);
-	// generate 6 scout ships
 	auto scout_ships = generate_ships(1, 6);
 	std::vector<SpaceShip> ships;
 	ships.reserve(battleships.size() + command_ship.size() + scout_ships.size());
@@ -74,24 +67,12 @@ void SpaceBattle::init_sector_k()
 	ships.insert(ships.end(), command_ship.begin(), command_ship.end());
 	ships.insert(ships.end(), scout_ships.begin(), scout_ships.end());
 	m_ships = ships;
-	//print_hint();
-	print_game_result();
-	m_detected = false;
+	print_hint();
 }
 
 void SpaceBattle::init_sector_r()
 {
-	m_charges = 2000;
-	m_map = SpaceMap{};
-	m_detected = true;
-	print_intro(m_sector);
-	SpaceShip ship{};
-	ship.place_in_position(generate_boss_position());
-	ship.uncover_position();
-	m_ships = { ship };
-	//print_hint();
-	print_game_result();
-	m_detected = false;
+	m_charges = 200;
 }
 
 void print_z_axis(uint32_t num, uint32_t map_size)
@@ -141,9 +122,9 @@ void SpaceBattle::print_round_result() const
 		const auto size = front_proj.size();
 		bool is_y_axis_printed = false;
 		// print meta information
-		std::cout << get_localized_str("charges_left") << ' ' << m_charges << "\n\n";
+		std::cout << get_localized_str("charges_left") << ": " << m_charges << "\n";
 		// print projections' labels
-		std::cout << get_localized_str("front_projection_lbl") << ' ' << get_localized_str("top_projection_lbl") << "\n\n";
+		std::cout << get_localized_str("front_projection_lbl") << std::string(10, ' ') << get_localized_str("top_projection_lbl") << "\n\n";
 
 		for (size_t i = 0; i < size; ++i)
 		{
@@ -253,6 +234,7 @@ void SpaceBattle::run_game_loop()
 			}
 			else
 			{
+				std::cout << get_localized_str("refused_to_rush") << '\n';
 				std::cout << get_localized_str("sector_failed") << '\n';
 			}
 			print_game_result();
@@ -315,14 +297,6 @@ void SpaceBattle::print_game_result()
 	m_detected = true;
 	print_round_result();
 }
-// outputs success message about lvl completion to stdout
-void SpaceBattle::print_lvl_completed() const
-{
-	std::cout << "\n\n\n"
-		<< "************************************************************\n"
-		<< get_localized_str("sector_f_completed")
-		<< "\n************************************************************\n\n\n";
-}
 // prints only one coordinate of the battleships if ship size is greater than 1
 void SpaceBattle::print_hint()
 {
@@ -339,15 +313,9 @@ void SpaceBattle::print_hint()
 		}
 	}
 	m_map.update_projections(points);
+	m_detected = true;
 	print_round_result();
-}
-// outputs message about lvl completion failure to stdout
-void SpaceBattle::print_lvl_failed() const
-{
-	std::cout << "\n\n\n"
-		<< "************************************************************\n"
-		<< get_localized_str("sector_f_failed")
-		<< "\n************************************************************\n\n\n";
+	m_detected = false;
 }
 
 // --------------------------------------------------------------------------------------
@@ -521,8 +489,7 @@ Point prompt_for_coordinates()
 void print_intro(Sector lvl)
 {
 	// TODO move all text to file
-	std::cout << get_localized_str("sector_f_intro")
-		<< "\n---------------------------------------------------------------------------------------\n\n";
+	std::cout << get_localized_str("sector_f_intro") << "\n\n";
 }
 
 #include <fstream>
@@ -542,11 +509,4 @@ void init_localization()
 std::string get_localized_str(const std::string& msg_id)
 {
 	return boost::locale::translate(msg_id);
-}
-
-std::vector<Point> generate_boss_position()
-{
-	std::vector<Point> points;
-	
-	return points;
 }

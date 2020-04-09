@@ -18,8 +18,11 @@ msgstr "Charges left"
 
 msgid "game_over"
 msgstr ""
-"You did well! You have completed {1} sectors of {2}. Congratulations.\n"
-"Battleships disposition:"
+"Sadly, but the game is over. Thank you for playing it.\n"
+"Battleships were placed in following locations:"
+
+msgid "refused_to_rush"
+msgstr "You have refused to rush through the sector."
 
 msgid "no_obstacles_found"
 msgstr "HPS did not detect anything near that target point."

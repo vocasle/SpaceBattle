@@ -26,8 +26,6 @@ private:
 	void scan_area(const Point& p);
 	void print_round_result() const;
 	bool are_ships_discovered() const;
-	void print_lvl_completed() const;
-	void print_lvl_failed() const;
 	void print_game_result();
 	void init_sector();
 	void init_sector_f();
@@ -54,4 +52,3 @@ void print_intro(Sector s);
 void init_localization();
 std::string get_localized_str(const std::string& msg_id);
 std::vector<SpaceShip> generate_obstacles(Sector s);
-std::vector<Point> generate_boss_position();

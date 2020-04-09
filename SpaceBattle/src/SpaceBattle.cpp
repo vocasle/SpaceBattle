@@ -205,6 +205,23 @@ bool SpaceBattle::wants_to_rush_through()
 	std::cin >> answer;
 	return answer == get_localized_str("affirmative_answer");
 }
+// generates battleships for Mini guess game
+std::vector<SpaceShip> generate_obstacles(Sector s)
+{
+	uint32_t num_of_scounts = s == Sector::f ? 6 : (s == Sector::k ? 12 : 24);
+	uint32_t num_of_battleships = s == Sector::f ? 4 : (s == Sector::k ? 8 : 12);
+	uint32_t num_of_command_ships = s == Sector::f ? 2 : (s == Sector::k ? 4 : 6);
+	auto scouts = generate_ships(1, num_of_scounts);
+	auto battleships = generate_ships(3, num_of_battleships);
+	auto command_ships = generate_ships(5, num_of_command_ships);
+	std::vector<SpaceShip> ships;
+	ships.reserve(scouts.size() + battleships.size() + command_ships.size());
+	ships.insert(ships.end(), scouts.begin(), scouts.end());
+	ships.insert(ships.end(), battleships.begin(), battleships.end());
+	ships.insert(ships.end(), command_ships.begin(), command_ships.end());
+	return ships;
+}
+
 // prints end game results to stdout
 void SpaceBattle::print_game_result()
 {
@@ -212,27 +229,17 @@ void SpaceBattle::print_game_result()
 	{
 		// ask if player wants to try his luck and break through
 		if (wants_to_rush_through())
-			// launch miny game to guess three points that does not
-			// contain enemy battleships
 		{
-			auto scouts = generate_ships(1, 5);
-			auto battleships = generate_ships(3, 2);
-			auto command_ships = generate_ships(5, 2);
-			std::vector<SpaceShip> ships;
-			ships.reserve(scouts.size() + battleships.size() + command_ships.size());
-			ships.insert(ships.end(), scouts.begin(), scouts.end());
-			ships.insert(ships.end(), battleships.begin(), battleships.end());
-			ships.insert(ships.end(), command_ships.begin(), command_ships.end());
-			MiniGame game{ ships };
+			MiniGame game{ generate_obstacles(m_sector) };
 			if (game.play())
 			{
-				// go to the next sector
 				std::cout << get_localized_str("rush_through_sector_f_success");
+				// go to the next sector
 			}
 			else
 			{
-				std::cout << get_localized_str("rush_through_sector_f_failure");
 				print_lvl_failed();
+				// quit game
 			}
 		}
 		// otherwise print position of battleships and ask if he wants
@@ -245,7 +252,7 @@ void SpaceBattle::print_game_result()
 			}
 			print_round_result();
 			print_lvl_failed();
-			// quit game
+			std::cout << get_localized_str("game_over");
 		}
 	}
 	else

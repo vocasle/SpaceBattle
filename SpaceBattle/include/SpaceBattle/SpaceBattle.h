@@ -12,9 +12,9 @@ enum class Axis
 	x,y,z
 };
 
-enum class Level
+enum class Sector
 {
-	one, two, three
+	f, k, r
 };
 
 class SpaceBattle
@@ -30,10 +30,10 @@ private:
 	void print_lvl_completed() const;
 	void print_lvl_failed() const;
 	void print_game_result();
-	void init_lvl();
-	void init_lvl_one();
+	void init_sector();
+	void init_sector_f();
 	void print_hint();
-	Level m_lvl;
+	Sector m_sector;
 	uint32_t m_charges;
 	uint32_t m_ship_size;
 	std::vector<SpaceShip> m_ships;
@@ -47,6 +47,6 @@ Point prompt_for_coordinates();
 Axis generate_axis();
 uint32_t random_int(uint32_t from, uint32_t to);
 std::vector<Point> generate_position(uint32_t ship_size, Axis axis);
-void print_intro(Level lvl);
+void print_intro(Sector s);
 void init_localization();
 std::string translate(const std::string& msg_id);

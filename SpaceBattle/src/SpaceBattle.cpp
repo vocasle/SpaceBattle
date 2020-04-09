@@ -2,6 +2,8 @@
 //
 
 #include <SpaceBattle/SpaceBattle.h>
+#include <SpaceBattle/MiniGame.h>
+
 #include <boost/locale.hpp>
 
 #include <random>
@@ -9,7 +11,7 @@
 #include <algorithm>
 
 SpaceBattle::SpaceBattle():
-	m_lvl{Level::one},
+	m_sector{Sector::f},
 	m_charges{0},
 	m_ship_size{0},
 	m_map{SpaceMap{10}},
@@ -17,7 +19,7 @@ SpaceBattle::SpaceBattle():
 { 
 	init_localization();
 	print_welcome_msg();
-	init_lvl();
+	init_sector();
 }
 
 uint32_t SpaceBattle::map_size()
@@ -26,23 +28,23 @@ uint32_t SpaceBattle::map_size()
 	return size;
 }
 
-void SpaceBattle::init_lvl()
+void SpaceBattle::init_sector()
 {
-	switch (m_lvl)
+	switch (m_sector)
 	{
-	case Level::one:
-		init_lvl_one();
+	case Sector::f:
+		init_sector_f();
 		break;
-	case Level::two:
+	case Sector::k:
 		break;
-	case Level::three:
+	case Sector::r:
 		break;
 	}
 }
 
-void SpaceBattle::init_lvl_one()
+void SpaceBattle::init_sector_f()
 {
-	print_intro(m_lvl);
+	print_intro(m_sector);
 	m_charges = 20;
 	// generate 2 3-decked ships 
 	auto battleships = generate_ships(3, 2);
@@ -200,21 +202,25 @@ void SpaceBattle::print_game_result()
 {
 	if (!are_ships_discovered())
 	{
-		for (auto& ship : m_ships)
-		{
-			ship.uncover_position();
-			m_map.update_projections(ship.get_position());
-		}
-		// TODO:
 		// ask if player wants to try his luck and break through
+		if (false)
 			// launch miny game to guess three points that does not
 			// contain enemy battleships
+		{
+			
+		}
 		// otherwise print position of battleships and ask if he wants
-		print_round_result();
-		print_lvl_failed();
-		// to play again
-			// play again
-		// otherwise quite
+		else
+		{
+			for (auto& ship : m_ships)
+			{
+				ship.uncover_position();
+				m_map.update_projections(ship.get_position());
+			}
+			print_round_result();
+			print_lvl_failed();
+			// quit game
+		}
 	}
 	else
 	{
@@ -424,7 +430,7 @@ Point prompt_for_coordinates()
 	return p;
 }
 // prints story text to stdout for specific lvl of the game
-void print_intro(Level lvl)
+void print_intro(Sector lvl)
 {
 	// TODO move all text to file
 	std::cout << translate("lvl_1_intro")

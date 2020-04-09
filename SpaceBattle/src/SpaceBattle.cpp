@@ -13,19 +13,13 @@
 SpaceBattle::SpaceBattle():
 	m_sector{Sector::f},
 	m_charges{0},
-	m_ship_size{0},
 	m_map{SpaceMap{10}},
+	m_detected{false},
 	m_ships{0}
 { 
 	init_localization();
 	print_welcome_msg();
 	init_sector();
-}
-
-uint32_t SpaceBattle::map_size()
-{
-	static const uint32_t size = 10;
-	return size;
 }
 
 void SpaceBattle::init_sector()
@@ -36,6 +30,7 @@ void SpaceBattle::init_sector()
 		init_sector_f();
 		break;
 	case Sector::k:
+		init_sector_k();
 		break;
 	case Sector::r:
 		break;
@@ -45,22 +40,47 @@ void SpaceBattle::init_sector()
 void SpaceBattle::init_sector_f()
 {
 	print_intro(m_sector);
+	m_detected = true;
 	m_charges = 20;
 	// generate 2 3-decked ships 
-	auto battleships = generate_ships(3, 2);
+	auto battleships = generate_ships(3, 2, m_map.size());
 	// and one 5-decked ship
-	auto command_ship = generate_ships(5, 1);
+	auto command_ship = generate_ships(5, 1, m_map.size());
 	std::vector<SpaceShip> ships;
 	ships.reserve(battleships.size() + command_ship.size());
 	ships.insert(ships.end(), battleships.begin(), battleships.end());
 	ships.insert(ships.end(), command_ship.begin(), command_ship.end());
 	m_ships = ships;
 	print_hint();
+	m_detected = false;
 }
 
-void print_z_axis(const uint32_t num)
+void SpaceBattle::init_sector_k()
 {
-	if (num != SpaceBattle::map_size())
+	m_charges = 30;
+	const auto map_size = 15;
+	m_map = SpaceMap{ map_size };
+	m_detected = true;
+	print_intro(m_sector);
+	// generate 4 3-decked ships 
+	auto battleships = generate_ships(3, 4, map_size);
+	// and 2 5-decked ships
+	auto command_ship = generate_ships(5, 2, map_size);
+	// generate 6 scout ships
+	auto scout_ships = generate_ships(1, 6, map_size);
+	std::vector<SpaceShip> ships;
+	ships.reserve(battleships.size() + command_ship.size() + scout_ships.size());
+	ships.insert(ships.end(), battleships.begin(), battleships.end());
+	ships.insert(ships.end(), command_ship.begin(), command_ship.end());
+	ships.insert(ships.end(), scout_ships.begin(), scout_ships.end());
+	m_ships = ships;
+	print_hint();
+	m_detected = true;
+}
+
+void print_z_axis(uint32_t num, uint32_t map_size)
+{
+	if (num != map_size)
 	{
 		std::cout << ' ';
 	}
@@ -82,9 +102,9 @@ void print_y_axis(const std::string & spacer, uint32_t limit)
 	std::cout << '\n';
 }
 
-void print_x_axis(const std::string & spacer, uint32_t num)
+void print_x_axis(const std::string & spacer, uint32_t num, uint32_t map_size)
 {
-	if (num == SpaceBattle::map_size() || num == SpaceBattle::map_size() / 2)
+	if (num == map_size || num == map_size / 2)
 	{
 		std::cout << ' ' << ' ';
 	}
@@ -122,7 +142,7 @@ void SpaceBattle::print_round_result() const
 				is_y_axis_printed = true;
 			}
 
-			print_z_axis(size - i);
+			print_z_axis(size - i, m_map.size());
 			// print rows of front projection
 			for (const auto& el : front_row)
 			{
@@ -133,7 +153,7 @@ void SpaceBattle::print_round_result() const
 			{
 				std::cout << "Z";
 			}
-			print_x_axis(spacer, i + 1);
+			print_x_axis(spacer, i + 1, m_map.size());
 			// print rows of top projection
 			for (const auto& el : top_row)
 			{
@@ -158,6 +178,20 @@ void SpaceBattle::print_round_result() const
 	}
 }
 
+void SpaceBattle::next_sector()
+{
+	static const uint32_t sectors_length = 3;
+	uint32_t next_sector_id = int(m_sector) + 1;
+	if (next_sector_id == sectors_length)
+	{
+		// game done
+		print_game_result();
+		return;
+	}
+	m_sector = Sector(next_sector_id);
+	init_sector();
+}
+
 // returns true only if all battleships were found by user
 bool SpaceBattle::are_ships_discovered() const
 {
@@ -172,20 +206,45 @@ bool SpaceBattle::are_ships_discovered() const
 // executes n times, where n is amount of charges
 void SpaceBattle::run_game_loop()
 {
-	while (m_charges != 0)
+	while (true)
 	{
 		--m_charges;
-		// promt user for coordinates of the target point
+		// promt player for coordinates of the target point
 		Point p = prompt_for_coordinates();
 		// scan target point and check if any ships were discovered
 		scan_area(p);
 		if (are_ships_discovered())
 		{
-			break;
+			next_sector();
+			continue;
 		}
 		print_round_result();
+
+		if (m_charges == 0)
+		{
+			if (wants_to_rush_through())
+			{
+				MiniGame game{ generate_obstacles(m_sector, m_map.size()) };
+				if (game.won())
+				{
+					std::cout << get_localized_str("rush_through_sector_success");
+					// go to the next sector
+					next_sector();
+					continue;
+				}
+				else
+				{
+					std::cout << get_localized_str("rush_through_sector_failure") << '\n';
+				}
+			}
+			else
+			{
+				std::cout << get_localized_str("sector_failed") << '\n';
+			}
+			print_game_result();
+			return;
+		}
 	}
-	print_game_result();
 }
 // checks if any ship were hit by the scanning beam
 void SpaceBattle::scan_area(const Point& p)
@@ -214,14 +273,14 @@ bool SpaceBattle::wants_to_rush_through()
 	return answer == get_localized_str("affirmative_answer");
 }
 // generates battleships for Mini guess game
-std::vector<SpaceShip> generate_obstacles(Sector s)
+std::vector<SpaceShip> generate_obstacles(Sector s, uint32_t map_size)
 {
 	uint32_t num_of_scounts = s == Sector::f ? 6 : (s == Sector::k ? 12 : 24);
 	uint32_t num_of_battleships = s == Sector::f ? 4 : (s == Sector::k ? 8 : 12);
 	uint32_t num_of_command_ships = s == Sector::f ? 2 : (s == Sector::k ? 4 : 6);
-	auto scouts = generate_ships(1, num_of_scounts);
-	auto battleships = generate_ships(3, num_of_battleships);
-	auto command_ships = generate_ships(5, num_of_command_ships);
+	auto scouts = generate_ships(1, num_of_scounts, map_size);
+	auto battleships = generate_ships(3, num_of_battleships, map_size);
+	auto command_ships = generate_ships(5, num_of_command_ships, map_size);
 	std::vector<SpaceShip> ships;
 	ships.reserve(scouts.size() + battleships.size() + command_ships.size());
 	ships.insert(ships.end(), scouts.begin(), scouts.end());
@@ -230,43 +289,17 @@ std::vector<SpaceShip> generate_obstacles(Sector s)
 	return ships;
 }
 
-// prints end game results to stdout
+// prints end game results to stdout and exits the game
 void SpaceBattle::print_game_result()
 {
-	if (!are_ships_discovered())
+	std::cout << get_localized_str("game_over") << '\n';
+	for (auto& ship : m_ships)
 	{
-		// ask if player wants to try his luck and break through
-		if (wants_to_rush_through())
-		{
-			MiniGame game{ generate_obstacles(m_sector) };
-			if (game.play())
-			{
-				std::cout << get_localized_str("rush_through_sector_f_success");
-				// go to the next sector
-			}
-			else
-			{
-				print_lvl_failed();
-				// quit game
-			}
-		}
-		// otherwise print position of battleships and ask if he wants
-		else
-		{
-			for (auto& ship : m_ships)
-			{
-				ship.uncover_position();
-				m_map.update_projections(ship.get_position());
-			}
-			print_round_result();
-			print_lvl_failed();
-			std::cout << get_localized_str("game_over");
-		}
+		ship.uncover_position();
+		m_map.update_projections(ship.get_position());
 	}
-	else
-	{
-		print_lvl_completed();
-	}
+	m_detected = true;
+	print_round_result();
 }
 // outputs success message about lvl completion to stdout
 void SpaceBattle::print_lvl_completed() const
@@ -401,7 +434,7 @@ void align_point(const Point& ref, Point& p, Axis a)
 }
 
 // generates position of the spaceship
-std::vector<Point> generate_position(uint32_t ship_size, Axis axis)
+std::vector<Point> generate_position(uint32_t ship_size, Axis axis, uint32_t map_size)
 {
 	auto axis2 = generate_axis();
 	while (axis2 == axis)
@@ -410,7 +443,7 @@ std::vector<Point> generate_position(uint32_t ship_size, Axis axis)
 	}
 
 	std::vector<Point> position;
-	position.push_back(generate_point(1, SpaceBattle::map_size()));
+	position.push_back(generate_point(1, map_size));
 	int32_t cnt = 1;
 	while (position.size() != ship_size)
 	{
@@ -421,15 +454,15 @@ std::vector<Point> generate_position(uint32_t ship_size, Axis axis)
 
 		if (p.x == 0)
 		{
-			p.x = next_val(points_on_axis(Axis::x, position), base_point.x, 1, SpaceBattle::map_size());
+			p.x = next_val(points_on_axis(Axis::x, position), base_point.x, 1, map_size);
 		}
 		else if (p.y == 0)
 		{
-			p.y = next_val(points_on_axis(Axis::y, position), base_point.y, 1, SpaceBattle::map_size());
+			p.y = next_val(points_on_axis(Axis::y, position), base_point.y, 1, map_size);
 		}
 		else
 		{
-			p.z = next_val(points_on_axis(Axis::z, position), base_point.z, 1, SpaceBattle::map_size());
+			p.z = next_val(points_on_axis(Axis::z, position), base_point.z, 1, map_size);
 		}
 		position.push_back(p);
 		++cnt;
@@ -437,12 +470,13 @@ std::vector<Point> generate_position(uint32_t ship_size, Axis axis)
 	return position;
 }
 // generates enemy battleships
-std::vector<SpaceShip> generate_ships(uint32_t ship_size, uint32_t num_of_ships)
+std::vector<SpaceShip> generate_ships(uint32_t ship_size, 
+	uint32_t num_of_ships, uint32_t map_size)
 {
 	std::vector<SpaceShip> ships(num_of_ships);
 	for (auto& ship : ships)
 	{
-		ship.place_in_position(generate_position(ship_size, generate_axis()));
+		ship.place_in_position(generate_position(ship_size, generate_axis(), map_size));
 	}
 	return ships;
 }

@@ -104,10 +104,10 @@ void SpaceBattle::print_round_result() const
 	bool is_y_axis_printed = false;
 	static const std::string spacer{ ' ', ' ', ' ' };
 	// print meta information
-	std::cout << spacer << ' ' << translate("charges_left") <<' ' << m_charges << "\n\n";
+	std::cout << spacer << ' ' << get_localized_str("charges_left") <<' ' << m_charges << "\n\n";
 	// print projections' labels
-	std::cout << spacer << ' ' << translate("front_projection_lbl") <<
-		"          " << translate("top_projection_lbl") <<"\n\n";
+	std::cout << spacer << ' ' << get_localized_str("front_projection_lbl") <<
+		"          " << get_localized_str("top_projection_lbl") <<"\n\n";
 
 	for (size_t i = 0; i < size; ++i)
 	{
@@ -197,17 +197,43 @@ bool SpaceBattle::scan_area(const Point& p)
 	}
 	return false;
 }
+// promts user for answer yes/no
+bool SpaceBattle::wants_to_rush_through()
+{
+	std::cout << get_localized_str("player_wants_to_rush_promt") << ' ';
+	std::string answer;
+	std::cin >> answer;
+	return answer == get_localized_str("affirmative_answer");
+}
 // prints end game results to stdout
 void SpaceBattle::print_game_result()
 {
 	if (!are_ships_discovered())
 	{
 		// ask if player wants to try his luck and break through
-		if (false)
+		if (wants_to_rush_through())
 			// launch miny game to guess three points that does not
 			// contain enemy battleships
 		{
-			
+			auto scouts = generate_ships(1, 5);
+			auto battleships = generate_ships(3, 2);
+			auto command_ships = generate_ships(5, 2);
+			std::vector<SpaceShip> ships;
+			ships.reserve(scouts.size() + battleships.size() + command_ships.size());
+			ships.insert(ships.end(), scouts.begin(), scouts.end());
+			ships.insert(ships.end(), battleships.begin(), battleships.end());
+			ships.insert(ships.end(), command_ships.begin(), command_ships.end());
+			MiniGame game{ ships };
+			if (game.play())
+			{
+				// go to the next sector
+				std::cout << get_localized_str("rush_through_sector_f_success");
+			}
+			else
+			{
+				std::cout << get_localized_str("rush_through_sector_f_failure");
+				print_lvl_failed();
+			}
 		}
 		// otherwise print position of battleships and ask if he wants
 		else
@@ -232,7 +258,7 @@ void SpaceBattle::print_lvl_completed() const
 {
 	std::cout << "\n\n\n"
 		<< "************************************************************\n"
-		<< translate("lvl_1_completed_msg")
+		<< get_localized_str("sector_f_completed")
 		<< "\n************************************************************\n\n\n";
 }
 // prints only one coordinate of the battleships if ship size is greater than 1
@@ -258,7 +284,7 @@ void SpaceBattle::print_lvl_failed() const
 {
 	std::cout << "\n\n\n"
 		<< "************************************************************\n"
-		<< translate("lvl_1_failed_msg")
+		<< get_localized_str("sector_f_failed")
 		<< "\n************************************************************\n\n\n";
 }
 
@@ -424,7 +450,7 @@ void print_welcome_msg()
 // throws std::runtime_exception if user input non integral values for X,Y or Z
 Point prompt_for_coordinates()
 {
-	std::cout << translate("target_point_prompt_msg");
+	std::cout << get_localized_str("target_point_prompt_msg") << ": ";
 	Point p{};
 	std::cin >> p;
 	return p;
@@ -433,7 +459,7 @@ Point prompt_for_coordinates()
 void print_intro(Sector lvl)
 {
 	// TODO move all text to file
-	std::cout << translate("lvl_1_intro")
+	std::cout << get_localized_str("sector_f_intro")
 		<< "\n---------------------------------------------------------------------------------------\n\n";
 }
 
@@ -451,8 +477,7 @@ void init_localization()
 	std::cout.imbue(std::locale());
 }
 
-std::string translate(const std::string& msg_id)
+std::string get_localized_str(const std::string& msg_id)
 {
-	auto str = boost::locale::translate(msg_id);
-	return str;
+	return boost::locale::translate(msg_id);
 }

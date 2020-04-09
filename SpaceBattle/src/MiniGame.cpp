@@ -14,7 +14,7 @@ bool MiniGame::play()
 	return std::find(m_points.begin(), m_points.end(), p) == m_points.end();
 }
 
-Point prompt()
+Point MiniGame::prompt()
 {
 	std::wcout << "Enter coordinates for the jump (X Y Z): ";
 	Point p{};

@@ -4,10 +4,10 @@
 
 add_library (SpaceBattleLib STATIC
 	"Point.cpp"
+	"MiniGame.cpp"
 	"SpaceBattle.cpp"  
 	"SpaceMap.cpp" 
-	"SpaceShip.cpp"
-	"MiniGame.cpp")
+	"SpaceShip.cpp")
 
 target_compile_features (SpaceBattleLib PUBLIC cxx_std_17)
 target_include_directories(SpaceBattleLib PUBLIC ..\\include)

@@ -33,6 +33,7 @@ private:
 	void init_sector();
 	void init_sector_f();
 	void print_hint();
+	bool wants_to_rush_through();
 	Sector m_sector;
 	uint32_t m_charges;
 	uint32_t m_ship_size;
@@ -49,4 +50,4 @@ uint32_t random_int(uint32_t from, uint32_t to);
 std::vector<Point> generate_position(uint32_t ship_size, Axis axis);
 void print_intro(Sector s);
 void init_localization();
-std::string translate(const std::string& msg_id);
+std::string get_localized_str(const std::string& msg_id);

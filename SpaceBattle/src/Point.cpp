@@ -1,5 +1,6 @@
 #include <SpaceBattle/Point.h>
 #include <stdexcept>
+#include <SpaceBattle/SpaceBattle.h>
 
 Point::Point(uint32_t x, uint32_t y, uint32_t z) : 
 	x{ x }, 
@@ -29,10 +30,10 @@ std::istream& operator>>(std::istream& is, Point& point)
 	if (!is)
 	{
 		is.clear();
+		is.unget();
 		std::string line;
 		std::getline(is, line);
-		error("Error in operator >> Point - '"
-			+ line + "' is not a valid input.");
+		error( "'" + line + "' " + get_localized_str("not_valid_target_point"));
 	}
 	return is;
 }

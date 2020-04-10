@@ -512,9 +512,20 @@ void print_welcome_msg()
 // throws std::runtime_exception if user input non integral values for X,Y or Z
 Point prompt_for_coordinates()
 {
-	std::cout << get_localized_str("target_point_prompt_msg") << ": ";
-	Point p{};
-	std::cin >> p;
+	Point p{0,0,0};
+	while (p.x == 0 && p.y == 0 && p.z == 0)
+	{
+		std::cout << get_localized_str("target_point_prompt_msg") << ": ";
+		try
+		{
+			std::cin >> p;
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+			p.x = p.y = p.z = 0;
+		}
+	}
 	return p;
 }
 // prints story text to stdout for specific lvl of the game

@@ -192,22 +192,63 @@ bool SpaceBattle::are_ships_discovered() const
 	return are_ships_discovered;
 }
 
-void play_dicipher_game()
+void play_decipher_game()
 {
 	const std::string cipher{ get_localized_str("cipher") };
-	std::cout << get_localized_str("cipher_lbl") << ":\n";
-	std::cout << cipher << '\n';
-	std::string guess;
+	const std::string cipher_lbl{ get_localized_str("cipher_lbl") };
 	const std::string dechiper_1{ get_localized_str("guess_without_spaces") };
 	const std::string dechiper_2{ get_localized_str("guess_with_spaces") };
-	std::cout << get_localized_str("prompt_cipher_txt") << ":\n";
+	const std::string incorrect_word{ get_localized_str("incorrect_dechiper") };
+	static const uint32_t alphabet_length{ 26 };
+	static const std::vector<char> alphabet{ 'a', 'b', 'c', 'd', 'e',
+		'f', 'g', 'h', 'i', 'j', 
+		'k', 'l', 'm', 'n', 'o', 
+		'p', 'q', 'r', 's', 't', 
+		'u','v', 'w', 'x', 'y', 'z'};
+	uint32_t cnt{ 0 };
+	std::string guess;
 	while (true)
 	{
 		if (guess == dechiper_1 || guess == dechiper_2)
 		{
 			break;
 		}
+		else
+		{
+			if (cnt > 0)
+			{
+				if (cnt == 10)
+				{
+					guess = dechiper_1;
+					std::cout << get_localized_str("colleague_dechipered_first") << ' ';
+					break;
+				}
+				std::cout << incorrect_word << ":\n";
+				std::cout << cipher << '\n';
+				for (auto& ch : guess)
+				{
+					if (ch == ' ')
+					{
+						continue;
+					}
+					auto pos = std::find(alphabet.begin(), alphabet.end(), ch);
+					if (pos != alphabet.end())
+					{
+						std::cout << (pos - alphabet.begin()) + 1 << ' ';
+					}
+					else
+					{
+						std::cout << '?' << ' ';
+					}
+				}
+				std::cout << '\n';
+			}
+		}
+		std::cout << cipher_lbl << ":\n";
+		std::cout << cipher << '\n';
+		std::cout << get_localized_str("prompt_cipher_txt") << ": ";
 		std::getline(std::cin, guess);
+		++cnt;
 	}
 	std::cout << get_localized_str("game_over_final_txt");
 }
@@ -237,7 +278,7 @@ void SpaceBattle::run_game_loop()
 		if (m_sector == Sector::r) // end game
 		{
 			// play sector R dechiper game
-			play_dicipher_game();
+			play_decipher_game();
 			break;
 		}
 		// promt player for coordinates of the target point

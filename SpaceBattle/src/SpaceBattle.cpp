@@ -592,9 +592,6 @@ void SpaceBattle::print_intro()
 	}
 }
 
-#include <fstream>
-#include <sstream>
-
 void init_localization()
 {
 	// is needed to support UTF-8 output to std::cout

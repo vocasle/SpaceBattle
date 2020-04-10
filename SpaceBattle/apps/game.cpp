@@ -11,4 +11,6 @@ int main()
 	{
 		std::cerr << e.what() << std::endl;
 	}
+	// prevent cmd to close before user can read the output
+	std::cin.get();
 }

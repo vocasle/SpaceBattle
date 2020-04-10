@@ -6,3 +6,17 @@ project ("SpaceBattle" VERSION 1.0
 
 add_subdirectory ("apps")
 add_subdirectory ("src")
+
+install(TARGETS SpaceBattle
+	RUNTIME
+	DESTINATION bin)
+
+install(TARGETS SpaceBattleLib
+	ARCHIVE
+	DESTINATION lib)
+
+install(DIRECTORY include
+	DESTINATION .)
+
+install(DIRECTORY assets
+	DESTINATION .)

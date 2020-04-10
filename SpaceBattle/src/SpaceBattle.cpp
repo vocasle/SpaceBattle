@@ -40,7 +40,7 @@ void SpaceBattle::init_sector()
 
 void SpaceBattle::init_sector_f()
 {
-	print_intro(m_sector);
+	print_intro();
 	m_charges = 20;
 	auto battleships = generate_ships(3, 2);
 	auto command_ship = generate_ships(5, 1);
@@ -54,13 +54,13 @@ void SpaceBattle::init_sector_f()
 
 void SpaceBattle::init_sector_k()
 {
-	m_charges = 30;
+	m_charges = 50;
 	m_map = SpaceMap{};
 	m_detected = false;
-	print_intro(m_sector);
+	print_intro();
 	auto battleships = generate_ships(3, 4);
 	auto command_ship = generate_ships(5, 2);
-	auto scout_ships = generate_ships(1, 6);
+	auto scout_ships = generate_ships(2, 6);
 	std::vector<SpaceShip> ships;
 	ships.reserve(battleships.size() + command_ship.size() + scout_ships.size());
 	ships.insert(ships.end(), battleships.begin(), battleships.end());
@@ -72,7 +72,7 @@ void SpaceBattle::init_sector_k()
 
 void SpaceBattle::init_sector_r()
 {
-	m_charges = 200;
+	print_intro();
 }
 
 void print_z_axis(uint32_t num, uint32_t map_size)
@@ -177,12 +177,6 @@ void SpaceBattle::next_sector()
 {
 	static const uint32_t sectors_length = 3;
 	uint32_t next_sector_id = int(m_sector) + 1;
-	if (next_sector_id == sectors_length)
-	{
-		// game done
-		print_game_result();
-		return;
-	}
 	m_sector = Sector(next_sector_id);
 	init_sector();
 }
@@ -197,13 +191,55 @@ bool SpaceBattle::are_ships_discovered() const
 	}
 	return are_ships_discovered;
 }
+
+void play_dicipher_game()
+{
+	const std::string cipher{ get_localized_str("cipher") };
+	std::cout << get_localized_str("cipher_lbl") << ":\n";
+	std::cout << cipher << '\n';
+	std::string guess;
+	const std::string dechiper_1{ get_localized_str("guess_without_spaces") };
+	const std::string dechiper_2{ get_localized_str("guess_with_spaces") };
+	std::cout << get_localized_str("prompt_cipher_txt") << ":\n";
+	while (true)
+	{
+		if (guess == dechiper_1 || guess == dechiper_2)
+		{
+			break;
+		}
+		std::getline(std::cin, guess);
+	}
+	std::cout << get_localized_str("game_over_final_txt");
+}
+
+bool SpaceBattle::is_mini_game_won()
+{
+	MiniGame game{ generate_obstacles(m_sector) };
+	if (game.won())
+	{
+		std::cout <<
+			get_localized_str("rush_through_sector_success") << '\n';
+		return true;
+	}
+	else
+	{
+		std::cout <<
+			get_localized_str("rush_through_sector_failure") << '\n';
+	}
+	return false;
+}
 // main game loop
 // executes n times, where n is amount of charges
 void SpaceBattle::run_game_loop()
 {
 	while (true)
 	{
-		--m_charges;
+		if (m_sector == Sector::r) // end game
+		{
+			// play sector R dechiper game
+			play_dicipher_game();
+			break;
+		}
 		// promt player for coordinates of the target point
 		Point p = prompt_for_coordinates();
 		// scan target point and check if any ships were discovered
@@ -219,17 +255,11 @@ void SpaceBattle::run_game_loop()
 		{
 			if (wants_to_rush_through())
 			{
-				MiniGame game{ generate_obstacles(m_sector) };
-				if (game.won())
+				if (is_mini_game_won())
 				{
-					std::cout << get_localized_str("rush_through_sector_success");
-					// go to the next sector
+					// init sector k
 					next_sector();
 					continue;
-				}
-				else
-				{
-					std::cout << get_localized_str("rush_through_sector_failure") << '\n';
 				}
 			}
 			else
@@ -242,9 +272,11 @@ void SpaceBattle::run_game_loop()
 		}
 	}
 }
+
 // checks if any ship were hit by the scanning beam
 void SpaceBattle::scan_area(const Point& p)
 {
+	--m_charges;
 	for (auto& ship : m_ships)
 	{
 		auto position = ship.get_position();
@@ -486,10 +518,26 @@ Point prompt_for_coordinates()
 	return p;
 }
 // prints story text to stdout for specific lvl of the game
-void print_intro(Sector lvl)
+void SpaceBattle::print_intro()
 {
-	// TODO move all text to file
-	std::cout << get_localized_str("sector_f_intro") << "\n\n";
+	std::cout << '\n';
+	switch (m_sector)
+	{
+	case Sector::f:
+		std::cout << get_localized_str("sector_f_intro") << "\n\n";
+		break;
+	case Sector::k:
+		std::cout << get_localized_str("sector_k_intro") << "\n\n";
+		break;
+	case Sector::r:
+		// do not print first sentence if player did not found all battleships
+		if (m_charges >= 0 && are_ships_discovered())
+		{
+			std::cout << get_localized_str("bonus_txt") << ' ';
+		}
+		std::cout << get_localized_str("sector_r_intro") << "\n\n";
+		break;
+	}
 }
 
 #include <fstream>

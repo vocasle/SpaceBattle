@@ -32,7 +32,9 @@ private:
 	void init_sector_k();
 	void init_sector_r();
 	void print_hint();
+	void print_intro();
 	bool wants_to_rush_through();
+	bool is_mini_game_won();
 	void next_sector();
 	Sector m_sector;
 	uint32_t m_charges;
@@ -48,7 +50,6 @@ Point prompt_for_coordinates();
 Axis generate_axis();
 uint32_t random_int(uint32_t from, uint32_t to);
 std::vector<Point> generate_position(uint32_t ship_size, Axis axis);
-void print_intro(Sector s);
 void init_localization();
 std::string get_localized_str(const std::string& msg_id);
 std::vector<SpaceShip> generate_obstacles(Sector s);

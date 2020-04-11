@@ -7,3 +7,20 @@ project ("SpaceBattle" VERSION 1.0
 add_subdirectory ("apps")
 add_subdirectory ("src")
 add_subdirectory("thirdparties/nowide")
+
+install(TARGETS SpaceBattle
+	RUNTIME
+	DESTINATION bin)
+
+install(TARGETS SpaceBattleLib
+	ARCHIVE
+	DESTINATION lib)
+
+install(DIRECTORY include
+	DESTINATION .)
+
+install(FILES assets/i18n/en/LC_MESSAGES/game.mo
+	DESTINATION assets/i18n/ru/LC_MESSAGES)
+
+install(FILES assets/i18n/en/LC_MESSAGES/game.mo
+	DESTINATION assets/i18n/en/LC_MESSAGES)

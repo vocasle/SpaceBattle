@@ -120,10 +120,13 @@ msgstr ""
 "Не бойтесь исследовать неизвестное и несите мир в своём сердце, куда бы вы не следовали."
 
 msgid "not_valid_target_point"
-msgstr "является некорректными координатами для целевой точки."
+msgstr "Введены некорректные координаты для целевой точки."
 
 msgid "incorrect_dechiper"
 msgstr "Сообщения отличаются"
 
 msgid "colleague_dechipered_first"
 msgstr "Ваш коллега расшифровал сообщение - \"w e c a m e i n p e a c e\"."
+
+msgid "jump_coordinates"
+msgstr "Введите координаты для прыжка (X Y Z)"

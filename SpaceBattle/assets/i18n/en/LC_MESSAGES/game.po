@@ -145,7 +145,7 @@ msgstr ""
 "go."
 
 msgid "not_valid_target_point"
-msgstr "is not a valid target point coordinates."
+msgstr "Not a valid target point coordinates."
 
 msgid "incorrect_dechiper"
 msgstr "Messages differ"
@@ -153,3 +153,6 @@ msgstr "Messages differ"
 msgid "colleague_dechipered_first"
 msgstr ""
 "Your colleague deciphered the message - \"w e c a m e i n p e a c e\"."
+
+msgid "jump_coordinates"
+msgstr "Enter coordinates for the jump (X Y Z)"

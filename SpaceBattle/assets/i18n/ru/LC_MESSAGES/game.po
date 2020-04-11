@@ -130,3 +130,6 @@ msgstr "Ваш коллега расшифровал сообщение - \"w e 
 
 msgid "jump_coordinates"
 msgstr "Введите координаты для прыжка (X Y Z)"
+
+msgid "press_enter_to_exit"
+msgstr "Нажмите клавишу \"Ввод\" для выхода из игры."

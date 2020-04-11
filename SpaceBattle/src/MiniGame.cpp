@@ -25,9 +25,12 @@ Point MiniGame::prompt()
 		auto input = read_console();
 		if (!is_valid_coordinates(input))
 		{
-			write_console("'" + input + "' " + get_localized_str("not_valid_target_point") + "\n");
+			write_console(get_localized_str("not_valid_target_point") + "\n");
 		}
-		return str_to_point(input);
+		else
+		{
+			return str_to_point(input);
+		}
 	}
 }
 

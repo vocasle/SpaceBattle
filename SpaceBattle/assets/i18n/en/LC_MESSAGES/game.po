@@ -156,3 +156,6 @@ msgstr ""
 
 msgid "jump_coordinates"
 msgstr "Enter coordinates for the jump (X Y Z)"
+
+msgid "press_enter_to_exit"
+msgstr "Press \"Enter\" key to exit the game."

@@ -309,9 +309,10 @@ void SpaceBattle::run_game_loop()
 				write_console(get_localized_str("sector_failed") + "\n");
 			}
 			print_game_result();
-			return;
+			break;
 		}
 	}
+	write_console("\n" + get_localized_str("press_enter_to_exit"));
 }
 
 // checks if any ship were hit by the scanning beam
@@ -611,6 +612,7 @@ std::string get_localized_str(const std::string& msg_id)
 void write_console(const std::string& str)
 {
 	boost::nowide::cout << str;
+	boost::nowide::cout.flush();
 }
 
 std::string read_console()

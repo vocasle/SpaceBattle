@@ -17,7 +17,8 @@ struct Point
 
 bool operator==(const Point& lhs, const Point& rhs);
 bool operator!=(const Point& lhs, const Point& rhs);
-std::istream& operator>>(std::istream& is, Point& point);
+Point str_to_point(const std::string& str);
+bool is_valid_coordinates(const std::string& str);
 void error(const std::string& msg);
 
 #endif // !POINT_H

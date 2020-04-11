@@ -5,12 +5,10 @@
 #include <SpaceBattle/MiniGame.h>
 
 #include <boost/locale.hpp>
-#include <boost/nowide/iostream.hpp>
 
 #include <random>
 #include <iostream>
 #include <algorithm>
-
 
 SpaceBattle::SpaceBattle() :
 	m_sector{ Sector::f },
@@ -81,36 +79,37 @@ void print_z_axis(uint32_t num, uint32_t map_size)
 {
 	if (num != map_size)
 	{
-		write_console(" ");
+		std::cout << ' ';
 	}
-	write_console(std::to_string(num) + " ");
+	std::cout << num << ' ';
 }
 
 void print_y_axis(uint32_t limit)
 {
 	for (auto i = 0; i < 2; ++i)
 	{
-		write_console(std::string(3, ' '));
+
+		std::cout << ' ' << ' ' << ' ';
 		for (size_t j = 0; j < limit; ++j)
 		{
-			write_console(std::to_string(j + 1) + " ");
+			std::cout << j + 1 << ' ';
 		}
-		write_console(" ");
+		std::cout << ' ';
 	}
-	write_console("\n");
+	std::cout << '\n';
 }
 
 void print_x_axis(uint32_t num, uint32_t map_size)
 {
 	if (num == map_size || num == map_size / 2)
 	{
-		write_console(std::string(2, ' '));
+		std::cout << ' ' << ' ';
 	}
 	else
 	{
-		write_console(std::string(3, ' '));
+		std::cout << ' ' << ' ' << ' ';
 	}
-	write_console(std::to_string(num) + " ");
+	std::cout << num << ' ';
 }
 
 // prints front and top projections of 3D battle space to stdout
@@ -123,11 +122,9 @@ void SpaceBattle::print_round_result() const
 		const auto size = front_proj.size();
 		bool is_y_axis_printed = false;
 		// print meta information
-		write_console(get_localized_str("charges_left") + ": " + std::to_string(m_charges) + "\n");
+		std::cout << get_localized_str("charges_left") << ": " << m_charges << "\n";
 		// print projections' labels
-		write_console(get_localized_str("front_projection_lbl")
-			+ std::string(10, ' ') + get_localized_str("top_projection_lbl"));
-		write_console("\n\n");
+		std::cout << get_localized_str("front_projection_lbl") << std::string(10, ' ') << get_localized_str("top_projection_lbl") << "\n\n";
 
 		for (size_t i = 0; i < size; ++i)
 		{
@@ -144,33 +141,35 @@ void SpaceBattle::print_round_result() const
 			// print rows of front projection
 			for (const auto& el : front_row)
 			{
-				write_console(std::string(1, el) + " ");
+				std::cout << el << ' ';
 			}
 			// print Z axis label
 			if (i + 1 == size / 2)
 			{
-				write_console("Z");
+				std::cout << "Z";
 			}
 			print_x_axis(i + 1, SpaceMap::size());
 			// print rows of top projection
 			for (const auto& el : top_row)
 			{
-				write_console(std::string(1, el) + " ");
+				std::cout << el << ' ';
 			}
 			// print X axis label
 			if (i + 1 == size / 2)
 			{
-				write_console("X");
+				std::cout << "X";
 			}
-			write_console("\n");
+
+			std::cout << '\n';
 		}
 		// print Y axis labels for both projections
-		write_console(std::string(11, ' ') + "Y" + std::string(24, ' ') + "Y\n");
+		std::cout << "           Y                        Y\n";
 	}
 	else
 	{
-		write_console(get_localized_str("no_obstacles_found") + "\n");
-		write_console(get_localized_str("charges_left") + ": " + std::to_string(m_charges) + "\n");
+		std::cout << get_localized_str("no_obstacles_found")
+			<< '\n' << get_localized_str("charges_left") << ": " << m_charges
+			<< '\n';
 	}
 }
 
@@ -221,11 +220,11 @@ void play_decipher_game()
 				if (cnt == 10)
 				{
 					guess = dechiper_1;
-					write_console(get_localized_str("colleague_dechipered_first") + " ");
+					std::cout << get_localized_str("colleague_dechipered_first") << ' ';
 					break;
 				}
-				write_console(incorrect_word + ":\n");
-				write_console(cipher + "\n");
+				std::cout << incorrect_word << ":\n";
+				std::cout << cipher << '\n';
 				for (auto& ch : guess)
 				{
 					if (ch == ' ')
@@ -235,24 +234,23 @@ void play_decipher_game()
 					auto pos = std::find(alphabet.begin(), alphabet.end(), ch);
 					if (pos != alphabet.end())
 					{
-						write_console(std::to_string((pos - alphabet.begin()) + 1) + " ");
+						std::cout << (pos - alphabet.begin()) + 1 << ' ';
 					}
 					else
 					{
-						write_console("? ");
+						std::cout << '?' << ' ';
 					}
 				}
-				write_console("\n");
+				std::cout << '\n';
 			}
 		}
-		write_console(cipher_lbl + ":\n");
-		write_console(cipher + "\n");
-		write_console(get_localized_str("prompt_cipher_txt") + ": ");
-		guess = read_console();
-		trim_str(guess);
+		std::cout << cipher_lbl << ":\n";
+		std::cout << cipher << '\n';
+		std::cout << get_localized_str("prompt_cipher_txt") << ": ";
+		std::getline(std::cin, guess);
 		++cnt;
 	}
-	write_console(get_localized_str("game_over_final_txt"));
+	std::cout << get_localized_str("game_over_final_txt");
 }
 
 bool SpaceBattle::is_mini_game_won()
@@ -260,12 +258,14 @@ bool SpaceBattle::is_mini_game_won()
 	MiniGame game{ generate_obstacles(m_sector) };
 	if (game.won())
 	{
-		write_console(get_localized_str("rush_through_sector_success") + "\n");
+		std::cout <<
+			get_localized_str("rush_through_sector_success") << '\n';
 		return true;
 	}
 	else
 	{
-		write_console(get_localized_str("rush_through_sector_failure") + "\n");
+		std::cout <<
+			get_localized_str("rush_through_sector_failure") << '\n';
 	}
 	return false;
 }
@@ -305,8 +305,8 @@ void SpaceBattle::run_game_loop()
 			}
 			else
 			{
-				write_console(get_localized_str("refused_to_rush") + "\n");
-				write_console(get_localized_str("sector_failed") + "\n");
+				std::cout << get_localized_str("refused_to_rush") << '\n';
+				std::cout << get_localized_str("sector_failed") << '\n';
 			}
 			print_game_result();
 			return;
@@ -336,10 +336,9 @@ void SpaceBattle::scan_area(const Point& p)
 // promts user for answer yes/no
 bool SpaceBattle::wants_to_rush_through()
 {
-	write_console(get_localized_str("player_wants_to_rush_promt") + " ");
-	std::string answer = read_console();
-	// remove trailing \r character
-	trim_str(answer);
+	std::cout << get_localized_str("player_wants_to_rush_promt") << ' ';
+	std::string answer;
+	std::cin >> answer;
 	return answer == get_localized_str("affirmative_answer");
 }
 // generates battleships for Mini guess game
@@ -362,7 +361,7 @@ std::vector<SpaceShip> generate_obstacles(Sector s)
 // prints end game results to stdout and exits the game
 void SpaceBattle::print_game_result()
 {
-	write_console(get_localized_str("game_over") + "\n");
+	std::cout << get_localized_str("game_over") << '\n';
 	for (auto& ship : m_ships)
 	{
 		ship.uncover_position();
@@ -538,117 +537,73 @@ std::vector<SpaceShip> generate_ships(uint32_t ship_size, uint32_t num_of_ships)
 
 void print_welcome_msg()
 {
-	write_console("  ########   ########     #######    #######   ########\n");
-	write_console("  #          #       #   #      #   #          #\n");
-	write_console("  ########   ########    ########   #          ########\n");
-	write_console("         #   #           #      #   #          #\n");
-	write_console("  ########   #           #      #    #######   ########\n\n\n");
-
-	write_console("  ########     #######   ########   ########   #          ########\n");
-	write_console("  #       #   #      #      #          #       #          #\n");
-	write_console("  ########    ########      #          #       #          ########\n");
-	write_console("  #       #   #      #      #          #       #          #\n");
-	write_console("  ########    #      #      #          #       ########   ########\n\n\n");
+	std::cout
+		<< "  ########   ########     #######    #######   ########\n"
+		<< "  #          #       #   #      #   #          #\n"
+		<< "  ########   ########    ########   #          ########\n"
+		<< "         #   #           #      #   #          #\n"
+		<< "  ########   #           #      #    #######   ########\n\n\n"
+		<< "  ########     #######   ########   ########   #          ########\n"
+		<< "  #       #   #      #      #          #       #          #\n"
+		<< "  ########    ########      #          #       #          ########\n"
+		<< "  #       #   #      #      #          #       #          #\n"
+		<< "  ########    #      #      #          #       ########   ########\n\n\n";
 }
 // prompts user for target point coordinates
 // throws std::runtime_exception if user input non integral values for X,Y or Z
 Point prompt_for_coordinates()
 {
-	while (true)
+	Point p{0,0,0};
+	while (p.x == 0 && p.y == 0 && p.z == 0)
 	{
-		write_console(get_localized_str("target_point_prompt_msg") + ": ");
-		auto input = read_console();
-		if (!is_valid_coordinates(input))\
+		std::cout << get_localized_str("target_point_prompt_msg") << ": ";
+		try
 		{
-			write_console(get_localized_str("not_valid_target_point") + "\n");
+			std::cin >> p;
 		}
-		else
+		catch (const std::exception& e)
 		{
-			return str_to_point(input);
+			std::cerr << e.what() << std::endl;
+			p.x = p.y = p.z = 0;
 		}
 	}
+	return p;
 }
 // prints story text to stdout for specific lvl of the game
 void SpaceBattle::print_intro()
 {
-	boost::nowide::cout << '\n';
+	std::cout << '\n';
 	switch (m_sector)
 	{
 	case Sector::f:
-		write_console(get_localized_str("sector_f_intro") + "\n\n");
+		std::cout << get_localized_str("sector_f_intro") << "\n\n";
 		break;
 	case Sector::k:
-		write_console(get_localized_str("sector_k_intro") + "\n\n");
+		std::cout << get_localized_str("sector_k_intro") << "\n\n";
 		break;
 	case Sector::r:
 		// do not print first sentence if player did not found all battleships
 		if (m_charges >= 0 && are_ships_discovered())
 		{
-			write_console(get_localized_str("bonus_txt") + " ");
+			std::cout << get_localized_str("bonus_txt") << ' ';
 		}
-		write_console(get_localized_str("sector_r_intro") + "\n\n");
+		std::cout << get_localized_str("sector_r_intro") << "\n\n";
 		break;
 	}
 }
 
-
 void init_localization()
 {
+	// is needed to support UTF-8 output to std::cout
+	system("chcp 65001");
 	boost::locale::generator gen;
 	gen.add_messages_path("..\\assets\\i18n");
 	gen.add_messages_domain("game");
 	std::locale::global(gen(""));
-	
-	boost::nowide::cout.imbue(std::locale());
-	boost::nowide::cin.imbue(std::locale());
+	std::cout.imbue(std::locale());
 }
 
 std::string get_localized_str(const std::string& msg_id)
 {
 	return boost::locale::translate(msg_id);
-}
-
-void write_console(const std::string& str)
-{
-	boost::nowide::cout << str;
-}
-
-std::string read_console()
-{
-	std::string input;
-	std::getline(boost::nowide::cin, input);
-	return input;
-}
-
-void trim_str(std::string& str)
-{
-	if (str.empty())
-	{
-		return;
-	}
-	auto begin = str.begin();
-	auto last = str.end() - 1;
-	while (*begin == ' ' || *last == ' ')
-	{
-		if (*begin == ' ')
-		{
-			str.erase(begin);
-			begin = str.begin();
-		}
-		if (*last == ' ')
-		{
-			str.erase(last);
-			last = str.end() - 1;
-		}
-	}
-	while (str.find('\r') != std::string::npos)
-	{
-		auto pos = str.find('\r');
-		str.erase(str.begin() + pos);
-	}
-	while (str.find('\n') != std::string::npos)
-	{
-		auto pos = str.find('\n');
-		str.erase(str.begin() + pos);
-	}
 }

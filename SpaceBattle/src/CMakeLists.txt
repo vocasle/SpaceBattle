@@ -10,6 +10,6 @@ add_library (SpaceBattleLib STATIC
 	"SpaceShip.cpp")
 
 target_compile_features (SpaceBattleLib PUBLIC cxx_std_17)
-target_include_directories(SpaceBattleLib PUBLIC ..\\include)
-target_link_libraries(SpaceBattleLib PRIVATE Boost::locale)
-file(COPY ..\\assets DESTINATION ${CMAKE_BINARY_DIR})
+target_include_directories(SpaceBattleLib PUBLIC ../include)
+target_link_libraries(SpaceBattleLib PRIVATE Boost::locale Boost::nowide)
+file(COPY ../assets DESTINATION ${CMAKE_BINARY_DIR})

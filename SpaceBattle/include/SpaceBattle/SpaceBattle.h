@@ -55,4 +55,5 @@ std::string get_localized_str(const std::string& msg_id);
 std::vector<SpaceShip> generate_obstacles(Sector s);
 
 void write_console(const std::string& str);
-std::string read_console(unsigned long chars_to_read);
+std::string read_console();
+void trim_str(std::string& str);

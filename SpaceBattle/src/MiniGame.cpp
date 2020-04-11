@@ -1,4 +1,7 @@
 #include <SpaceBattle/MiniGame.h>
+#include <SpaceBattle/SpaceBattle.h>
+
+#include <boost/nowide/iostream.hpp>
 
 #include <algorithm>
 
@@ -16,10 +19,16 @@ bool MiniGame::won()
 
 Point MiniGame::prompt()
 {
-	std::wcout << "Enter coordinates for the jump (X Y Z): ";
-	Point p{};
-	std::cin >> p;
-	return p;
+	while (true)
+	{
+		boost::nowide::cout << get_localized_str("jump_coordinates") << ": ";
+		auto input = read_console();
+		if (!is_valid_coordinates(input))
+		{
+			boost::nowide::cout << "'" << input << "' " << get_localized_str("not_valid_target_point");
+		}
+		return str_to_point(input);
+	}
 }
 
 std::vector<Point> get_points(const std::vector<SpaceShip>& ships)

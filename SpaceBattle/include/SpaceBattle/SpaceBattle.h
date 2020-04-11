@@ -53,3 +53,6 @@ std::vector<Point> generate_position(uint32_t ship_size, Axis axis);
 void init_localization();
 std::string get_localized_str(const std::string& msg_id);
 std::vector<SpaceShip> generate_obstacles(Sector s);
+
+void write_console(const std::string& str);
+std::string read_console(unsigned long chars_to_read);

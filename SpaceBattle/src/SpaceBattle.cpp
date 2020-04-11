@@ -10,6 +10,11 @@
 #include <iostream>
 #include <algorithm>
 
+#ifdef WIN32
+#include <Windows.h>
+#endif // WIN32
+
+
 SpaceBattle::SpaceBattle() :
 	m_sector{ Sector::f },
 	m_charges{ 0 },
@@ -337,8 +342,7 @@ void SpaceBattle::scan_area(const Point& p)
 bool SpaceBattle::wants_to_rush_through()
 {
 	std::cout << get_localized_str("player_wants_to_rush_promt") << ' ';
-	std::string answer;
-	std::cin >> answer;
+	std::string answer = read_console(10);
 	return answer == get_localized_str("affirmative_answer");
 }
 // generates battleships for Mini guess game
@@ -553,21 +557,20 @@ void print_welcome_msg()
 // throws std::runtime_exception if user input non integral values for X,Y or Z
 Point prompt_for_coordinates()
 {
-	Point p{0,0,0};
-	while (p.x == 0 && p.y == 0 && p.z == 0)
+	while (true)
 	{
 		std::cout << get_localized_str("target_point_prompt_msg") << ": ";
 		try
 		{
+			Point p{};
 			std::cin >> p;
+			return p;
 		}
 		catch (const std::exception& e)
 		{
 			std::cerr << e.what() << std::endl;
-			p.x = p.y = p.z = 0;
 		}
 	}
-	return p;
 }
 // prints story text to stdout for specific lvl of the game
 void SpaceBattle::print_intro()
@@ -592,21 +595,117 @@ void SpaceBattle::print_intro()
 	}
 }
 
-#include <fstream>
-#include <sstream>
 
 void init_localization()
 {
 	// is needed to support UTF-8 output to std::cout
-	system("chcp 65001");
+	#ifdef WIN32
+	if (!SetConsoleOutputCP(CP_UTF8) && !SetConsoleCP(CP_UTF8))
+	{
+		error("Error in init_localization() - Could not change console code page.");
+	}
+	#endif // WIN32
 	boost::locale::generator gen;
 	gen.add_messages_path("..\\assets\\i18n");
 	gen.add_messages_domain("game");
-	std::locale::global(gen(""));
+	std::locale::global(gen("ru_RU.UTF-8"));
 	std::cout.imbue(std::locale());
 }
 
 std::string get_localized_str(const std::string& msg_id)
 {
 	return boost::locale::translate(msg_id);
+}
+
+#ifdef WIN32
+// converts wide string to utf8 string
+std::string to_str(const std::wstring& wstr)
+{
+	if (wstr.empty()) return std::string{};
+	auto size = WideCharToMultiByte(
+		CP_UTF8,
+		WC_ERR_INVALID_CHARS,
+		&wstr[0],
+		wstr.size(),
+		NULL,
+		0,
+		NULL,
+		NULL
+	);
+	std::string str(size, 0);
+	WideCharToMultiByte(
+		CP_UTF8,
+		WC_ERR_INVALID_CHARS,
+		wstr.c_str(),
+		wstr.size(),
+		&str[0],
+		size,
+		NULL,
+		NULL
+	);
+	return str;
+}
+// converts utf8 string to wide string
+std::wstring to_wstr(const std::string& str)
+{
+	if (str.empty()) return std::wstring{};
+	auto size = MultiByteToWideChar(
+		CP_UTF8,
+		MB_ERR_INVALID_CHARS,
+		str.c_str(),
+		str.size(),
+		NULL,
+		0
+	);
+	std::wstring wstr(size, 0);
+	MultiByteToWideChar(
+		CP_UTF8,
+		MB_ERR_INVALID_CHARS,
+		str.c_str(),
+		str.size(),
+		&wstr[0],
+		size
+	);
+	return wstr;
+}
+
+#endif // WIN32
+
+
+void write_console(const std::string& str)
+{
+	#ifndef WIN32
+		std::cout << str << std::endl;
+	#endif // !WIN32
+	auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	auto wstr = to_wstr(str);
+	auto result = WriteConsoleW(handle, wstr.c_str(), wstr.size(), NULL, NULL);
+	if (result == 0)
+	{
+		error("Error in print_to_console() - Received status "
+			+ std::to_string(GetLastError()));
+	}
+}
+
+std::string read_console(unsigned long chars_to_read)
+{
+	#ifndef WIN32
+		std::string output{};
+		std::cin >> output;
+		return output;
+	#endif // !WIN32
+	auto handle = GetStdHandle(STD_INPUT_HANDLE);
+	unsigned long num_of_inputs{ 0 };
+	std::wstring wstr(chars_to_read, 0);
+	CONSOLE_READCONSOLE_CONTROL input_control{};
+	input_control.nInitialChars = 0;
+	input_control.nLength = sizeof(CONSOLE_READCONSOLE_CONTROL);
+	auto result = ReadConsoleW(
+		handle,
+		&wstr[0],
+		chars_to_read,
+		&num_of_inputs,
+		&input_control
+	);
+	return to_str(wstr);
 }

@@ -558,7 +558,7 @@ Point prompt_for_coordinates()
 	{
 		write_console(get_localized_str("target_point_prompt_msg") + ": ");
 		auto input = read_console();
-		if (!is_valid_coordinates(input))\
+		if (!is_valid_coordinates(input))
 		{
 			write_console(get_localized_str("not_valid_target_point") + "\n");
 		}

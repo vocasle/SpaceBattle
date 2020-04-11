@@ -21,11 +21,11 @@ Point MiniGame::prompt()
 {
 	while (true)
 	{
-		boost::nowide::cout << get_localized_str("jump_coordinates") << ": ";
+		write_console(get_localized_str("jump_coordinates") + ": ");
 		auto input = read_console();
 		if (!is_valid_coordinates(input))
 		{
-			boost::nowide::cout << "'" << input << "' " << get_localized_str("not_valid_target_point");
+			write_console("'" + input + "' " + get_localized_str("not_valid_target_point") + "\n");
 		}
 		return str_to_point(input);
 	}
